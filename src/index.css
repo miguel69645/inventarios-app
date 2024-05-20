@@ -26,8 +26,27 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+}
+
+.home {
+  width: 100%;
+}
+
+#div-home{
+  min-height: calc(100vh - 5em);
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  width: 100%;
+}
+
+.footer span {
+  text-align: center;
+  margin-bottom: 0;
 }
 
 h1 {
