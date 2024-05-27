@@ -1,45 +1,36 @@
 import axios from "axios";
 
-export function getAllSeries() {
+export function getAllSeries(id, selectedBusinessId, selectedStoresId) {
+  console.log(id, selectedBusinessId, selectedStoresId);
   return new Promise((resolve, reject) => {
     axios
-      .get(import.meta.env.VITE_GET_ALL)
+      .get(
+        `${
+          import.meta.env.VITE_GET_ALL
+        }/${id}/${selectedBusinessId}/${selectedStoresId}`
+      )
       .then((response) => {
         const data = response.data;
-        const series = data.flatMap((item) =>
-          item.negocios.flatMap((negocios) =>
-            negocios.almacenes.flatMap((almacenes) =>
-              almacenes.series.map((serie) => {
-                return {
-                  Serie: serie.Serie,
-                  Placa: serie.Placa,
-                  CantidadAct: serie.CantidadAct,
-                  IdTipoMovtoOK: serie.IdTipoMovtoOK,
-                  IdClaseMovtoOK: serie.IdClaseMovtoOK,
-                  Referencia: serie.Referencia,
-                };
-              })
-            )
-          )
-        );
-        if (response.status === 200) {
-          if (data.length === 0) {
-            console.info("🛈 No se encontraron documentos en <<cat_Series>>");
-            resolve([]);
-          } else {
-            console.log("Colección: <<cat_series>>", data);
-            resolve(series); // Resuelve la promesa con el arreglo de institutos
-          }
+        if (Array.isArray(data)) {
+          const series = data.map((serie) => {
+            return {
+              Serie: serie.Serie,
+              Placa: serie.Placa,
+              Observacion: serie.Observacion,
+            };
+          });
+          console.log(series);
+          resolve(series);
         } else {
           console.error(
-            "No se pudo realizar correctamente la petición <<getAllSeriess - Series>>",
+            "No se pudo realizar correctamente la petición <<getAllSeries - Service>>",
             data
           );
-          reject(series); // Rechaza la promesa con la respuesta si no fue exitosa
+          reject(data); // Rechaza la promesa con la respuesta si no fue exitosa
         }
       })
       .catch((error) => {
-        console.error("Error en <<getAllSeriess - Series>>", error);
+        console.error("Error en <<getAllSeries - Series>>", error);
         reject(error); // Rechaza la promesa en caso de error
       });
   });

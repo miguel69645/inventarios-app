@@ -7,10 +7,12 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useSelector } from "react-redux";
 //FIC: DB
 //import StoresStaticData from '../../../../../db/security/json/institutes/StoresData';
 import { getAllStores } from "../../services/remote/get/getAllStores";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { SET_ID_STORES } from "../../../redux/slices/storesSlice";
 //FIC: Modals
 import AddStoreModal from "../modals/AddStoreModal";
 //FIC: Columns Table Definition.
@@ -20,7 +22,6 @@ const StoresTable = () => {
   const selectedBusinessId = useSelector(
     (state) => state.business.selectedBusinessId
   );
-  console.log(id);
   //FIC: controlar el estado del indicador (loading).
   const [loadingTable, setLoadingTable] = useState(true);
 
@@ -28,6 +29,7 @@ const StoresTable = () => {
   const [StoresData, setStoresData] = useState([]);
   //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
   const [AddStoreShowModal, setAddStoreShowModal] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     async function fetchData() {
       try {
@@ -35,6 +37,10 @@ const StoresTable = () => {
         setStoresData(AllStoresData);
         //setStoresData(StoresStaticData);
         setLoadingTable(false);
+        // Establecer el primer almacen como seleccionado por defecto
+        if (AllStoresData.length > 0) {
+          dispatch(SET_ID_STORES(AllStoresData[0].IdAlmacenOK));
+        }
       } catch (error) {
         console.error(
           "Error al obtener los institutos en useEffect de StoresTable:",
@@ -43,7 +49,11 @@ const StoresTable = () => {
       }
     }
     fetchData();
-  }, [selectedBusinessId]);
+  }, [dispatch, id, selectedBusinessId]);
+  const handleRowClick = (row) => {
+    dispatch(SET_ID_STORES(row.IdAlmacenOK));
+    console.log(row.IdAlmacenOK);
+  };
   const StoresColumns = [
     {
       accessorKey: "IdAlmacenOK",
@@ -89,6 +99,15 @@ const StoresTable = () => {
       accessorKey: "StockMinimo",
       header: "STOCK MIN",
       size: 30, //small column
+    },
+    {
+      accessorKey: "select",
+      header: "SELECCIONAR",
+      Cell: ({ row }) => (
+        <button onClick={() => handleRowClick(row.original)}>
+          Seleccionar
+        </button>
+      ),
     },
   ];
   return (

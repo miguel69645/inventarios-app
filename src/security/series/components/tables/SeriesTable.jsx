@@ -10,28 +10,20 @@ import DeleteIcon from "@mui/icons-material/Delete";
 //FIC: DB
 //import SeriessStaticData from '../../../../../db/security/json/Seriess/SeriessData';
 import { getAllSeries } from "../../services/remote/get/getAllSeries";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 //FIC: Modals
 import AddSeriesModal from "../modals/AddSeriesModal";
 //FIC: Columns Table Definition.
-const SeriesColumns = [
-  {
-    accessorKey: "Serie",
-    header: "SERIE",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "Placa",
-    header: "PLACA",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "Observacion",
-    header: "OBSERVACION",
-    size: 150, //small column
-  },
-];
 //FIC: Table - FrontEnd.
 const SeriessTable = () => {
+  const id = useSelector((state) => state.institutes.institutesDataArr);
+  const selectedBusinessId = useSelector(
+    (state) => state.business.selectedBusinessId
+  );
+  const selectedStoresId = useSelector(
+    (state) => state.stores.selectedStoresId
+  );
   //FIC: controlar el estado del indicador (loading).
   const [loadingTable, setLoadingTable] = useState(true);
 
@@ -39,10 +31,11 @@ const SeriessTable = () => {
   const [SeriessData, setSeriessData] = useState([]);
   //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
   const [AddSeriesShowModal, setAddSeriesShowModal] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     async function fetchData() {
       try {
-        const AllSeriessData = await getAllSeries();
+        const AllSeriessData = await getAllSeries(id, selectedBusinessId, selectedStoresId);
         setSeriessData(AllSeriessData);
         //setSeriessData(SeriessStaticData);
         setLoadingTable(false);
@@ -54,7 +47,24 @@ const SeriessTable = () => {
       }
     }
     fetchData();
-  }, []);
+  }, [dispatch, id, selectedBusinessId, selectedStoresId]);
+  const SeriesColumns = [
+    {
+      accessorKey: "Serie",
+      header: "SERIE",
+      size: 30, //small column
+    },
+    {
+      accessorKey: "Placa",
+      header: "PLACA",
+      size: 30, //small column
+    },
+    {
+      accessorKey: "Observacion",
+      header: "OBSERVACION",
+      size: 150, //small column
+    },
+  ];
   return (
     <Box>
       <Box>

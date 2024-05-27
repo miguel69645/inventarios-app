@@ -63,7 +63,6 @@ const BusinessTable = () => {
     }
     fetchData();
   }, [dispatch, id]);
-  // const dispatch = useDispatch();
   const handleRowClick = (row) => {
     dispatch(SET_ID_BUSINESS(row.IdNegocioOK));
     console.log(row.IdNegocioOK);
