@@ -48,7 +48,7 @@ const InstitutesTable = () => {
   const dispatch = useDispatch();
   const handleRowClick = (row) => {
     setSelectedInstituteId(row._id);
-    dispatch(SET_ID_INSTITUTES(selectedInstituteId));
+    dispatch(SET_ID_INSTITUTES(row._id));
   };
   const InstitutesColumns = [
     {
