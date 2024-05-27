@@ -110,9 +110,10 @@ const InstitutesTable = () => {
                           );
                           console.log(instituteDetails);
                           setUpdateInstituteShowModal(true);
-                        }
-                        else {
-                          alert('Por favor, seleccione un instituto antes de editarlo');
+                        } else {
+                          alert(
+                            "Por favor, seleccione un instituto antes de editarlo"
+                          );
                         }
                       }}
                     >
@@ -126,7 +127,7 @@ const InstitutesTable = () => {
                   </Tooltip>
                   <Tooltip title="Detalles ">
                     <IconButton
-                       onClick={() => {
+                      onClick={() => {
                         if (selectedInstituteId !== null) {
                           setDetailsInstituteShowModal(true);
                         } else {
