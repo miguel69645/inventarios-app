@@ -1,20 +1,19 @@
 import axios from "axios";
-import { useSelector } from "react-redux";
 
-export function   GetAllBusiness() {
-  const id = useSelector((state) => state.institutesDataArr);
+export async function getAllBusiness(id) {
+  console.log(id)
   return new Promise((resolve, reject) => {
     axios
       .get(`${import.meta.env.VITE_GET_ALL}/${id}`)
       .then((response) => {
         const data = response.data
-        const negocios = data.flatMap((item) => item.negocios.map((negocios) => {
+        const negocios = data.negocios.map((negocios) => {
           return {
             IdNegocioOK: negocios.IdNegocioOK,
             ControlaSerie: negocios.ControlaSerie,
             descripcionNegocio: negocios.descripcionNegocio,
           };
-        }));
+        });
         console.log(negocios)
 
         if (response.status === 200) {

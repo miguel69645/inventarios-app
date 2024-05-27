@@ -1,22 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllInstitutes } from "../../institutes/services/remote/get/getAllInstitutes";
+import { getInstitutesAll } from "../actions/institutesActions";
 
-const fetchData = () => {
-  try {
-    const AllInstitutesData = getAllInstitutes().then((data) => {const institutes = { data }; return institutes});
-    return AllInstitutesData;
-  } catch (error) {
-    console.error(
-      "Error al obtener los institutos en useEffect de InstitutesTable:",
-      error
-    );
-  }
-}  
+const datos = await getInstitutesAll()
 const initialState = {
-  institutesDataArr: fetchData(),
+  institutesDataArr: datos,
 };
 const institutesSlice = createSlice({
-  name: "INSTITUTES",
+  name: "institutes",
   initialState,
   reducers: {
     SET_ID_INSTITUTES: (state, action) => {

@@ -9,7 +9,8 @@ import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 //FIC: DB
 //import BusinesssStaticData from '../../../../../db/security/json/Businesss/BusinesssData';
-import { GetAllBusiness } from "../../services/remote/get/getAllBusiness";
+import { getAllBusiness } from "../../services/remote/get/getAllBusiness";
+import { useSelector } from "react-redux";
 //FIC: Modals
 import AddBusinessModal from "../modals/AddBusinessModal";
 //FIC: Columns Table Definition.
@@ -31,11 +32,14 @@ const BusinesssColumns = [
   },
 ];
 //FIC: Table - FrontEnd.
+
 const BusinessTable = () => {
+  const id = useSelector((state) => state.institutes.institutesDataArr);
+  console.log(id)
 
   const addBusinesss = async () => {
     try {
-      const AllBusinesssData = await GetAllBusiness();
+      const AllBusinesssData = await getAllBusiness();
       setBusinessData(AllBusinesssData);
     } catch (error) {
       console.error(
@@ -55,7 +59,7 @@ const BusinessTable = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const AllBusinesssData = await GetAllBusiness();
+        const AllBusinesssData = await getAllBusiness(id);
         setBusinessData(AllBusinesssData);
         //setBusinesssData(BusinesssStaticData);
         setLoadingTable(false);
