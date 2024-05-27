@@ -4,7 +4,9 @@ import { BusinessModel } from "../models/BusinessModel";
 //enviados desde el evento onSubmit de Formik
 export const BusinessValues = (values) => {
   let business = BusinessModel();
-  (business.IdNegocioOK = values.IdNegocioOK),
+  (business._id = values._id),
+    (business.IdNegocioOK = values.IdNegocioOK),
+    (business.descripcionNegocio = values.descripcionNegocio),
     (business.ControlaSerie = values.ControlaSerie);
   return business;
 };

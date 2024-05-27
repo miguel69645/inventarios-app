@@ -1,25 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit";
-const initialState = {
-  //DATA
-  institutesDataArr: [],
+import { getAllInstitutes } from "../../institutes/services/remote/get/getAllInstitutes";
 
-  //SELECCIONES
-  //instituteDataObj: {},
-  //BOOLEANS/VARIABLES
+const fetchData = () => {
+  try {
+    const AllInstitutesData = getAllInstitutes().then((data) => {const institutes = { data }; return institutes});
+    return AllInstitutesData;
+  } catch (error) {
+    console.error(
+      "Error al obtener los institutos en useEffect de InstitutesTable:",
+      error
+    );
+  }
+}  
+const initialState = {
+  institutesDataArr: fetchData(),
 };
 const institutesSlice = createSlice({
   name: "INSTITUTES",
   initialState,
   reducers: {
-    SET_DATA_INSTITUTES: (state, action) => {
-      console.log("<<REDUX-REDUCER>>:<<SET_DATA_INSTITUTES>>", action.payload);
+    SET_ID_INSTITUTES: (state, action) => {
       //state.institutesDataArr = action.payload.institutesDataArr;
       state.institutesDataArr = action.payload;
     },
   },
 });
 export const {
-  SET_DATA_INSTITUTES,
+  SET_ID_INSTITUTES,
   //ADD_PRODUCT_SELECTED,
   //SWITCH_STATE,
 } = institutesSlice.actions;

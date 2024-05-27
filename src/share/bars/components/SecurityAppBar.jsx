@@ -16,11 +16,6 @@ import { useNavigate } from "react-router-dom";
 const pages = [
   "INSTITUTOS",
   "NEGOCIOS",
-  "ALMACENES",
-  "MOVIMIENTOS",
-  "SERIES",
-  "STATUS",
-  "UBICACIONES",
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 function ResponsiveAppBar() {
@@ -68,21 +63,6 @@ function ResponsiveAppBar() {
         break;
       case "NEGOCIOS":
         navigate("/business");
-        break;
-      case "ALMACENES":
-        navigate("/store");
-        break;
-      case "MOVIMIENTOS":
-        navigate("/movements");
-        break;
-      case "SERIES":
-        navigate("/series");
-        break;
-      case "STATUS":
-        navigate("/status");
-        break;
-      case "UBICACIONES":
-        navigate("/location");
         break;
     }
   }, [myPages]);

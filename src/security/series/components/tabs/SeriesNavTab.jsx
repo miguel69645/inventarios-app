@@ -1,24 +1,21 @@
 import { Box, Tab, Tabs, Stack } from "@mui/material";
 import React, { useState } from "react";
 
-const BusinessTabs = [
-  "Negocios",
-  "Info Adicional",
-  "Archivos",
-  "Telefonos",
-  "Dir Webs",
-  "Domicilios",
+const SeriesTabs = [
+  "SERIES",
+  "ESTATUS FISICO",
+  "ESTATUS VENTA",
 ];
 
-const BusinessNavTab = ({
-  currentRowInBusinessTab,
-  setCurrentNameTabInBusinessTab,
+const SeriesNavTab = ({
+  currentRowInSeriesTab,
+  setCurrentNameTabInSeriesTab,
 }) => {
   const [currenTabIndex, setCurrentTabIndex] = useState(0);
 
   //FIC: Evento Change
   const handleChange = (e) => {
-    setCurrentNameTabInBusinessTab(e.target.innerText.toUpperCase());
+    setCurrentNameTabInSeriesTab(e.target.innerText.toUpperCase());
     switch (e.target.innerText.toUpperCase()) {
       case "NEGOCIOS":
         setCurrentTabIndex(0);
@@ -55,12 +52,12 @@ const BusinessNavTab = ({
         aria-label="icon tabs example"
         textColor="primary"
       >
-        {BusinessTabs.map((tab) => {
+        {SeriesTabs.map((tab) => {
           return (
             <Tab
               key={tab}
               label={tab}
-              disabled={currentRowInBusinessTab === null}
+              disabled={currentRowInSeriesTab === null}
             />
           );
         })}
@@ -69,4 +66,4 @@ const BusinessNavTab = ({
   );
 };
 
-export default BusinessNavTab;
+export default SeriesNavTab;

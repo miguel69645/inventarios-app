@@ -1,13 +1,9 @@
-import { Box, Tab, Tabs, Stack } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Tab, Tabs } from "@mui/material";
+import  { useState } from "react";
 
 const BusinessTabs = [
-  "Negocios",
-  "Info Adicional",
-  "Archivos",
-  "Telefonos",
-  "Dir Webs",
-  "Domicilios",
+  "NEGOCIOS",
+  "ALMACENES",
 ];
 
 const BusinessNavTab = ({
@@ -23,20 +19,8 @@ const BusinessNavTab = ({
       case "NEGOCIOS":
         setCurrentTabIndex(0);
         break;
-      case "INFO ADICIONAL":
+      case "ALMACENES":
         setCurrentTabIndex(1);
-        break;
-      case "ARCHIVOS":
-        setCurrentTabIndex(2);
-        break;
-      case "TELEFONOS":
-        setCurrentTabIndex(3);
-        break;
-      case "DIR WEBS":
-        setCurrentTabIndex(4);
-        break;
-      case "DOMICILIOS":
-        setCurrentTabIndex(5);
         break;
     }
   };

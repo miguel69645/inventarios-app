@@ -3,14 +3,15 @@ import axios from "axios";
 export function AddOneBusiness(business) {
   console.log("<<EJECUTA>> API <<AddOneBusiness>> Requiere:", business);
   return new Promise((resolve, reject) => {
+    const documentId = business._id;
+    const newBusinessEntry = business.datos
     axios
-      .post(import.meta.env.VITE_GET_ALL_BUSINESS_URL, business)
+      .get(`import.meta.env.VITE_GET_ALL/${documentId}`)
       .then((response) => {
-        console.log("<<RESPONSE>> AddOneBusiness", business);
-        const data = response.data;
-        console.log(response.status);
-
+        
         if (response.status === 200 || response.status === 201) {
+          const data = response.data;
+          data.negocios.push()
           resolve(data);
         } else {
           console.error(

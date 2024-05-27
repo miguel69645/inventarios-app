@@ -2,45 +2,29 @@ import { Box, Tab, Tabs, Stack } from "@mui/material";
 import React, { useState } from "react";
 
 const BusinessTabs = [
-  "Negocios",
-  "Info Adicional",
-  "Archivos",
-  "Telefonos",
-  "Dir Webs",
-  "Domicilios",
+  "ALMACENES",
+  "SERIES",
 ];
 
 const BusinessNavTab = ({
-  currentRowInBusinessTab,
-  setCurrentNameTabInBusinessTab,
+  currentInRowInStoreTab,
+  setCurrentNameTabInStoreTab,
 }) => {
   const [currenTabIndex, setCurrentTabIndex] = useState(0);
 
   //FIC: Evento Change
   const handleChange = (e) => {
-    setCurrentNameTabInBusinessTab(e.target.innerText.toUpperCase());
+    setCurrentNameTabInStoreTab(e.target.innerText.toUpperCase());
     switch (e.target.innerText.toUpperCase()) {
       case "NEGOCIOS":
         setCurrentTabIndex(0);
         break;
-      case "INFO ADICIONAL":
+      case "SERIES":
         setCurrentTabIndex(1);
-        break;
-      case "ARCHIVOS":
-        setCurrentTabIndex(2);
-        break;
-      case "TELEFONOS":
-        setCurrentTabIndex(3);
-        break;
-      case "DIR WEBS":
-        setCurrentTabIndex(4);
-        break;
-      case "DOMICILIOS":
-        setCurrentTabIndex(5);
         break;
     }
   };
-  return (
+  return ( 
     <Box
       sx={{
         border: (theme) => `1px solid ${theme.palette.divider}`,
@@ -60,7 +44,7 @@ const BusinessNavTab = ({
             <Tab
               key={tab}
               label={tab}
-              disabled={currentRowInBusinessTab === null}
+              disabled={currentInRowInStoreTab === null}
             />
           );
         })}

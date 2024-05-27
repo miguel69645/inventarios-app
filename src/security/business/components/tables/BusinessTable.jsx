@@ -9,7 +9,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 //FIC: DB
 //import BusinesssStaticData from '../../../../../db/security/json/Businesss/BusinesssData';
-import { getAllBusiness } from "../../services/remote/get/getAllBusiness";
+import { GetAllBusiness } from "../../services/remote/get/getAllBusiness";
 //FIC: Modals
 import AddBusinessModal from "../modals/AddBusinessModal";
 //FIC: Columns Table Definition.
@@ -25,14 +25,9 @@ const BusinesssColumns = [
     size: 30, //small column
   },
   {
-    accessorKey: "Activo",
-    header: "ACTIVO",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "Borrado",
-    header: "BORRADO",
-    size: 30, //small column
+    accessorKey: "descripcionNegocio",
+    header: "DESCRIPCION",
+    size: 100, //small column  
   },
 ];
 //FIC: Table - FrontEnd.
@@ -40,7 +35,7 @@ const BusinessTable = () => {
 
   const addBusinesss = async () => {
     try {
-      const AllBusinesssData = await getAllBusiness();
+      const AllBusinesssData = await GetAllBusiness();
       setBusinessData(AllBusinesssData);
     } catch (error) {
       console.error(
@@ -60,7 +55,7 @@ const BusinessTable = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const AllBusinesssData = await getAllBusiness();
+        const AllBusinesssData = await GetAllBusiness();
         setBusinessData(AllBusinesssData);
         //setBusinesssData(BusinesssStaticData);
         setLoadingTable(false);
