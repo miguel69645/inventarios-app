@@ -1,11 +1,13 @@
 import axios from "axios";
 
-export function getAllStores() {
+export function getAllStores(id, selectedBusinessId) {
+  console.log(id, selectedBusinessId);
   return new Promise((resolve, reject) => {
     axios
-      .get(import.meta.env.VITE_GET_ALL)
+      .get(`${import.meta.env.VITE_GET_ALL}/${id}/${selectedBusinessId}`)
       .then((response) => {
         const data = response.data;
+<<<<<<< HEAD
         const almacenes = data.flatMap((item) =>
           item.negocios.flatMap((negocios) =>
             negocios.almacenes.map((almacenes) => {
@@ -34,6 +36,24 @@ export function getAllStores() {
             console.log("Colección: <<cat_institutos>>", data);
             resolve(almacenes); // Resuelve la promesa con el arreglo de institutos
           }
+=======
+        if (Array.isArray(data)) {
+          const almacenes = data.map((almacen) => {
+            return {
+              IdAlmacenOK: almacen.IdAlmacenOK,
+              Principal: almacen.Principal,
+              CantidadActual: almacen.CantidadActual,
+              CantidadDisponible: almacen.CantidadDisponible,
+              CantidadApartada: almacen.CantidadApartada,
+              CantidadTransito: almacen.CantidadTransito,
+              CantidadMerma: almacen.CantidadMerma,
+              StockMaximo: almacen.StockMaximo,
+              StockMinimo: almacen.StockMinimo,
+            };
+          });
+          console.log(almacenes);
+          resolve(almacenes);
+>>>>>>> 4c2cf068c87d60beaefb7ff73a056bbc17ff787f
         } else {
           console.error(
             "No se pudo realizar correctamente la petición <<getAllStores - Service>>",

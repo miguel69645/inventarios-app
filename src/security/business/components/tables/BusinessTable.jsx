@@ -11,31 +11,17 @@ import DeleteIcon from "@mui/icons-material/Delete";
 //import BusinesssStaticData from '../../../../../db/security/json/Businesss/BusinesssData';
 import { getAllBusiness } from "../../services/remote/get/getAllBusiness";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { SET_ID_BUSINESS } from "../../../redux/slices/businessSlice";
+
 //FIC: Modals
 import AddBusinessModal from "../modals/AddBusinessModal";
-//FIC: Columns Table Definition.
-const BusinesssColumns = [
-  {
-    accessorKey: "IdNegocioOK",
-    header: "ID NEGOCIO",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "ControlaSerie",
-    header: "CONTROLA SERIE",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "descripcionNegocio",
-    header: "DESCRIPCION",
-    size: 100, //small column  
-  },
-];
-//FIC: Table - FrontEnd.
 
+//FIC: Columns Table Definition.
+//FIC: Table - FrontEnd.
 const BusinessTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
-  console.log(id)
+  console.log(id);
 
   const addBusinesss = async () => {
     try {
@@ -51,18 +37,23 @@ const BusinessTable = () => {
 
   //FIC: controlar el estado del indicador (loading).
   const [loadingTable, setLoadingTable] = useState(true);
-
   //FIC: controlar el estado de la data de Institutos.
   const [BusinessData, setBusinessData] = useState([]);
   //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
+  // const [selectedBusinessId, setSelectedBusinessId] = useState(null);
   const [AddBusinessShowModal, setAddBusinessShowModal] = useState(false);
+  const dispatch = useDispatch();
+
   useEffect(() => {
     async function fetchData() {
       try {
         const AllBusinesssData = await getAllBusiness(id);
         setBusinessData(AllBusinesssData);
-        //setBusinesssData(BusinesssStaticData);
         setLoadingTable(false);
+        // Establecer el primer negocio como seleccionado por defecto
+        if (AllBusinesssData.length > 0) {
+          dispatch(SET_ID_BUSINESS(AllBusinesssData[0].IdNegocioOK));
+        }
       } catch (error) {
         console.error(
           "Error al obtener los institutos en useEffect de BusinesssTable:",
@@ -71,7 +62,37 @@ const BusinessTable = () => {
       }
     }
     fetchData();
-  }, []);
+  }, [dispatch, id]);
+  const handleRowClick = (row) => {
+    dispatch(SET_ID_BUSINESS(row.IdNegocioOK));
+    console.log(row.IdNegocioOK);
+  };
+  const BusinesssColumns = [
+    {
+      accessorKey: "IdNegocioOK",
+      header: "ID NEGOCIO",
+      size: 30, //small column
+    },
+    {
+      accessorKey: "ControlaSerie",
+      header: "CONTROLA SERIE",
+      size: 30, //small column
+    },
+    {
+      accessorKey: "descripcionNegocio",
+      header: "DESCRIPCION",
+      size: 100, //small column
+    },
+    {
+      accessorKey: "select",
+      header: "SELECCIONAR",
+      Cell: ({ row }) => (
+        <button onClick={() => handleRowClick(row.original)}>
+          Seleccionar
+        </button>
+      ),
+    },
+  ];
   return (
     <Box>
       <Box>
@@ -125,6 +146,3 @@ const BusinessTable = () => {
   );
 };
 export default BusinessTable;
-
-
-
