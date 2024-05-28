@@ -4,6 +4,7 @@ import { StoreModel } from "../models/StoreModel";
 //enviados desde el evento onSubmit de Formik
 export const StoreValues = (values) => {
   let Store = StoreModel();
+  (Store._id = values._id),
   (Store.IdAlmacenOK = values.IdAlmacenOK),
     (Store.Principal = values.Principal),
     (Store.CantidadActual = values.CantidadActual),

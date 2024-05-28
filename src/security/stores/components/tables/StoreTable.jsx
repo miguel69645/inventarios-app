@@ -13,6 +13,11 @@ import { getAllStores } from "../../services/remote/get/getAllStores";
 //FIC: Modals
 import AddStoreModal from "../modals/AddStoreModal";
 //FIC: Columns Table Definition.
+
+const handleRowClick = (row) => {
+  console.log(row._id);
+};
+
 const StoresColumns = [
   {
     accessorKey: "IdAlmacenOK",
@@ -58,6 +63,15 @@ const StoresColumns = [
     accessorKey: "StockMinimo",
     header: "STOCK MIN",
     size: 30, //small column
+  },
+  {
+    accessorKey: "select",
+    header: "SELECCIONAR",
+    Cell: ({ row }) => (
+      <button onClick={() => handleRowClick(row.original)}>
+        seleccionar
+      </button>
+    ),
   },
 ];
 //FIC: Table - FrontEnd.

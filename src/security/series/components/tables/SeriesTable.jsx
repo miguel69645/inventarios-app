@@ -13,6 +13,11 @@ import { getAllSeries } from "../../services/remote/get/getAllSeries";
 //FIC: Modals
 import AddSeriesModal from "../modals/AddSeriesModal";
 //FIC: Columns Table Definition.
+
+const handleRowClick = (row) => {
+  // dispatch(SET_ID_SERIES(row._id));
+  console.log(row._id)
+}
 const SeriesColumns = [
   {
     accessorKey: "Serie",
@@ -28,6 +33,15 @@ const SeriesColumns = [
     accessorKey: "Observacion",
     header: "OBSERVACION",
     size: 150, //small column
+  },
+  {
+    accessorKey: "select",
+    header: "Seleccionar",
+    Cell: ({ row }) => (
+      <button onClick={() => handleRowClick(row.original)}>
+        Seleccionar
+      </button>
+    ),
   },
 ];
 //FIC: Table - FrontEnd.

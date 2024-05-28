@@ -16,7 +16,7 @@ const BusinessNavTab = ({
   const handleChange = (e) => {
     setCurrentNameTabInStoreTab(e.target.innerText.toUpperCase());
     switch (e.target.innerText.toUpperCase()) {
-      case "NEGOCIOS":
+      case "ALMACENES":
         setCurrentTabIndex(0);
         break;
       case "SERIES":
@@ -37,7 +37,7 @@ const BusinessNavTab = ({
         variant={"fullWidth"}
         onChange={handleChange}
         aria-label="icon tabs example"
-        textColor="primary"
+        textColor=""
       >
         {BusinessTabs.map((tab) => {
           return (

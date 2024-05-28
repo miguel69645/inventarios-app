@@ -3,6 +3,7 @@ import SeriesNavTab from "../tabs/SeriesNavTab";
 import SeriesTable from "../tables/SeriesTable";
 import StatusTable from "../../../status/components/tables/StatusTable";
 import { useState } from "react";
+import LocationTable from "../../../location/components/tables/LocationTable";
 
 export default function BusinessTab() {
   const [currentRowInSeriesTab, setCurrentRowInSeriesTab] = useState(0);
@@ -16,6 +17,7 @@ export default function BusinessTab() {
       {currentTabInPrincipalTab == "SERIES" && <SeriesTable />}
       {currentTabInPrincipalTab == "ESTATUS FISICO" && <StatusTable />}
       {currentTabInPrincipalTab == "ESTATUS VENTA" && <StatusTable />}
+      {currentTabInPrincipalTab == "UBICACIONES" && <LocationTable />}
     </Box>
   );
 }

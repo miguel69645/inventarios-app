@@ -5,6 +5,7 @@ const SeriesTabs = [
   "SERIES",
   "ESTATUS FISICO",
   "ESTATUS VENTA",
+  "UBICACIONES"
 ];
 
 const SeriesNavTab = ({
@@ -17,23 +18,17 @@ const SeriesNavTab = ({
   const handleChange = (e) => {
     setCurrentNameTabInSeriesTab(e.target.innerText.toUpperCase());
     switch (e.target.innerText.toUpperCase()) {
-      case "NEGOCIOS":
+      case "SERIES":
         setCurrentTabIndex(0);
         break;
-      case "INFO ADICIONAL":
+      case "ESTATUS FISICO":
         setCurrentTabIndex(1);
         break;
-      case "ARCHIVOS":
+      case "ESTATUS VENTA":
         setCurrentTabIndex(2);
         break;
-      case "TELEFONOS":
+      case "UBICACIONES":
         setCurrentTabIndex(3);
-        break;
-      case "DIR WEBS":
-        setCurrentTabIndex(4);
-        break;
-      case "DOMICILIOS":
-        setCurrentTabIndex(5);
         break;
     }
   };
@@ -50,7 +45,7 @@ const SeriesNavTab = ({
         variant={"fullWidth"}
         onChange={handleChange}
         aria-label="icon tabs example"
-        textColor="primary"
+        textColor=""
       >
         {SeriesTabs.map((tab) => {
           return (

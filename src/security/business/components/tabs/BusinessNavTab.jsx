@@ -37,7 +37,7 @@ const BusinessNavTab = ({
         variant={"fullWidth"}
         onChange={handleChange}
         aria-label="icon tabs example"
-        textColor="primary"
+        textColor=""
       >
         {BusinessTabs.map((tab) => {
           return (

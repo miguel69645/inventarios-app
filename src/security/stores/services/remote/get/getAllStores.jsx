@@ -10,6 +10,7 @@ export function getAllStores() {
           item.negocios.flatMap((negocios) =>
             negocios.almacenes.map((almacenes) => {
               return {
+                _id: almacenes._id,
                 IdAlmacenOK: almacenes.IdAlmacenOK,
                 Principal: almacenes.Principal,
                 CantidadActual: almacenes.CantidadActual,
