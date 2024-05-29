@@ -5,15 +5,17 @@ export function getAllInstitutes() {
     axios
       .get(import.meta.env.VITE_GET_ALL)
       .then((response) => {
-        const data = response.data; 
+        const data = response.data;
         if (response.status === 200) {
           if (data.length === 0) {
-            console.info("🛈 No se encontraron documentos en <<cat_institutos>>");
+            console.info(
+              "🛈 No se encontraron documentos en <<cat_institutos>>"
+            );
             resolve([]);
           } else {
             console.log("Colección: <<cat_institutos>>", data);
             resolve(data);
-             // Resuelve la promesa con el arreglo de institutos
+            // Resuelve la promesa con el arreglo de institutos
           }
         } else {
           console.error(

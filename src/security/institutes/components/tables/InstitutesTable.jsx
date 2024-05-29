@@ -10,6 +10,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 //FIC: DB
 //import InstitutesStaticData from '../../../../../db/security/json/institutes/InstitutesData';
 import { getAllInstitutes } from "../../services/remote/get/getAllInstitutes";
+import { getConcatenatedDescription } from "../../services/remote/get/getDescription";
 import { useDispatch } from "react-redux";
 import { SET_ID_INSTITUTES } from "../../../redux/slices/institutesSlice";
 //FIC: Modals
@@ -33,8 +34,17 @@ const InstitutesTable = () => {
     async function fetchData() {
       try {
         const AllInstitutesData = await getAllInstitutes();
-        setInstitutesData(AllInstitutesData);
-        //setInstitutesData(InstitutesStaticData);
+        const descriptions = await getConcatenatedDescription();
+        const InstitutesDataWithDescription = AllInstitutesData.map(
+          (institute, index) => {
+            return {
+              ...institute,
+              DescripcionConcatenada:
+                descriptions[index].DescripcionConcatenada,
+            };
+          }
+        );
+        setInstitutesData(InstitutesDataWithDescription);
         setLoadingTable(false);
       } catch (error) {
         console.error(
@@ -65,6 +75,11 @@ const InstitutesTable = () => {
       accessorKey: "IdPresentaOK",
       header: "ID PRESENTA OK",
       size: 150, //small column
+    },
+    {
+      accessorKey: "DescripcionConcatenada",
+      header: "DESCRIPCIÓN",
+      size: 300,
     },
     {
       accessorKey: "select",
