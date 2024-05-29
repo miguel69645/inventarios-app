@@ -15,40 +15,6 @@ import { useDispatch } from "react-redux";
 //FIC: Modals
 import AddSeriesModal from "../modals/AddSeriesModal";
 //FIC: Columns Table Definition.
-<<<<<<< HEAD
-
-const handleRowClick = (row) => {
-  // dispatch(SET_ID_SERIES(row._id));
-  console.log(row._id)
-}
-const SeriesColumns = [
-  {
-    accessorKey: "Serie",
-    header: "SERIE",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "Placa",
-    header: "PLACA",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "Observacion",
-    header: "OBSERVACION",
-    size: 150, //small column
-  },
-  {
-    accessorKey: "select",
-    header: "Seleccionar",
-    Cell: ({ row }) => (
-      <button onClick={() => handleRowClick(row.original)}>
-        Seleccionar
-      </button>
-    ),
-  },
-];
-=======
->>>>>>> 4c2cf068c87d60beaefb7ff73a056bbc17ff787f
 //FIC: Table - FrontEnd.
 const SeriessTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
