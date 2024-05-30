@@ -12,7 +12,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllSeries } from "../../services/remote/get/getAllSeries";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-//FIC: Modals
+import { SET_ID_SERIES } from "../../../redux/slices/seriesSlice"; //FIC: Modals
 import AddSeriesModal from "../modals/AddSeriesModal";
 //FIC: Columns Table Definition.
 //FIC: Table - FrontEnd.
@@ -35,10 +35,18 @@ const SeriessTable = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const AllSeriessData = await getAllSeries(id, selectedBusinessId, selectedStoresId);
+        const AllSeriessData = await getAllSeries(
+          id,
+          selectedBusinessId,
+          selectedStoresId
+        );
         setSeriessData(AllSeriessData);
-        //setSeriessData(SeriessStaticData);
         setLoadingTable(false);
+        // Establecer la primer serie como seleccionado por defecto
+        if (AllSeriessData.length > 0) {
+          dispatch(SET_ID_SERIES(AllSeriessData[0].Serie));
+        }
+        //setSeriessData(SeriessStaticData);
       } catch (error) {
         console.error(
           "Error al obtener los institutos en useEffect de SeriessTable:",
@@ -48,6 +56,10 @@ const SeriessTable = () => {
     }
     fetchData();
   }, [dispatch, id, selectedBusinessId, selectedStoresId]);
+  const handleRowClick = (row) => {
+    dispatch(SET_ID_SERIES(row.Serie));
+    console.log(row.Serie);
+  };
   const SeriesColumns = [
     {
       accessorKey: "Serie",
@@ -63,6 +75,15 @@ const SeriessTable = () => {
       accessorKey: "Observacion",
       header: "OBSERVACION",
       size: 150, //small column
+    },
+    {
+      accessorKey: "select",
+      header: "SELECCIONAR",
+      Cell: ({ row }) => (
+        <button onClick={() => handleRowClick(row.original)}>
+          Seleccionar
+        </button>
+      ),
     },
   ];
   return (
@@ -117,6 +138,3 @@ const SeriessTable = () => {
   );
 };
 export default SeriessTable;
-
-
-

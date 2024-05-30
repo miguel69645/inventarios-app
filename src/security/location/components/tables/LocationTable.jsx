@@ -10,23 +10,23 @@ import DeleteIcon from "@mui/icons-material/Delete";
 //FIC: DB
 //import LocationsStaticData from '../../../../../db/security/json/Locations/LocationsData';
 import { getAllLocations } from "../../services/remote/get/getAllLocation";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 //FIC: Modals
 import AddLocationModal from "../modals/AddLocationModal";
 //FIC: Columns Table Definition.
-const LocationsColumns = [
-  {
-    accessorKey: "Ubicacion",
-    header: "ID OK",
-    size: 30, //small column
-  },
-  {
-    accessorKey: "Actual",
-    header: "ACTUAL",
-    size: 30, //small column
-  },
-];
 //FIC: Table - FrontEnd.
 const LocationsTable = () => {
+  const id = useSelector((state) => state.institutes.institutesDataArr);
+  const selectedBusinessId = useSelector(
+    (state) => state.business.selectedBusinessId
+  );
+  const selectedStoresId = useSelector(
+    (state) => state.stores.selectedStoresId
+  );
+  const selectedSeriesId = useSelector(
+    (state) => state.series.selectedSeriesId
+  );
   //FIC: controlar el estado del indicador (loading).
   const [loadingTable, setLoadingTable] = useState(true);
 
@@ -34,13 +34,19 @@ const LocationsTable = () => {
   const [LocationsData, setLocationsData] = useState([]);
   //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
   const [AddLocationShowModal, setAddLocationShowModal] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     async function fetchData() {
       try {
-        const AllLocationsData = await getAllLocations();
+        const AllLocationsData = await getAllLocations(
+          id,
+          selectedBusinessId,
+          selectedStoresId,
+          selectedSeriesId
+        );
         setLocationsData(AllLocationsData);
-        //setLocationsData(LocationsStaticData);
         setLoadingTable(false);
+        //setLocationsData(LocationsStaticData);
       } catch (error) {
         console.error(
           "Error al obtener los institutos en useEffect de LocationsTable:",
@@ -49,7 +55,19 @@ const LocationsTable = () => {
       }
     }
     fetchData();
-  }, []);
+  }, [dispatch, id, selectedBusinessId, selectedStoresId, selectedSeriesId]);
+  const LocationsColumns = [
+    {
+      accessorKey: "Ubicacion",
+      header: "ID_UBICACION",
+      size: 30, //small column
+    },
+    {
+      accessorKey: "Actual",
+      header: "ACTUAL",
+      size: 30, //small column
+    },
+  ];
   return (
     <Box>
       <Box>
@@ -102,6 +120,3 @@ const LocationsTable = () => {
   );
 };
 export default LocationsTable;
-
-
-
