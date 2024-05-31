@@ -1,21 +1,18 @@
-//FIC: React
 import React, { useEffect, useMemo, useState } from "react";
-//FIC: Material UI
-import { MaterialReactTable } from "material-react-table";
-import { Box, Stack, Tooltip, Button, IconButton, Dialog } from "@mui/material";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
+import { Box, Stack, Tooltip, IconButton, Dialog } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
-//FIC: DB
-//import SeriessStaticData from '../../../../../db/security/json/Seriess/SeriessData';
 import { getAllSeries } from "../../services/remote/get/getAllSeries";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { SET_ID_SERIES } from "../../../redux/slices/seriesSlice"; //FIC: Modals
+import { useSelector, useDispatch } from "react-redux";
+import { SET_ID_SERIES } from "../../../redux/slices/seriesSlice";
 import AddSeriesModal from "../modals/AddSeriesModal";
-//FIC: Columns Table Definition.
-//FIC: Table - FrontEnd.
+
 const SeriessTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
   const selectedBusinessId = useSelector(
@@ -24,14 +21,13 @@ const SeriessTable = () => {
   const selectedStoresId = useSelector(
     (state) => state.stores.selectedStoresId
   );
-  //FIC: controlar el estado del indicador (loading).
   const [loadingTable, setLoadingTable] = useState(true);
-
-  //FIC: controlar el estado de la data de Institutos.
   const [SeriessData, setSeriessData] = useState([]);
-  //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
+  const [selectedSeriesId, setSelectedSeriesId] = useState(null);
+  const [rowSelection, setRowSelection] = useState({});
   const [AddSeriesShowModal, setAddSeriesShowModal] = useState(false);
   const dispatch = useDispatch();
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -42,11 +38,11 @@ const SeriessTable = () => {
         );
         setSeriessData(AllSeriessData);
         setLoadingTable(false);
-        // Establecer la primer serie como seleccionado por defecto
         if (AllSeriessData.length > 0) {
           dispatch(SET_ID_SERIES(AllSeriessData[0].Serie));
+          setSelectedSeriesId(AllSeriessData[0].Serie);
+          setRowSelection({ [AllSeriessData[0].Serie]: true });
         }
-        //setSeriessData(SeriessStaticData);
       } catch (error) {
         console.error(
           "Error al obtener los institutos en useEffect de SeriessTable:",
@@ -56,77 +52,85 @@ const SeriessTable = () => {
     }
     fetchData();
   }, [dispatch, id, selectedBusinessId, selectedStoresId]);
+
   const handleRowClick = (row) => {
-    dispatch(SET_ID_SERIES(row.Serie));
-    console.log(row.Serie);
+    dispatch(SET_ID_SERIES(row.original.Serie));
+    setSelectedSeriesId(row.original.Serie);
   };
-  const SeriesColumns = [
-    {
-      accessorKey: "Serie",
-      header: "SERIE",
-      size: 30, //small column
-    },
-    {
-      accessorKey: "Placa",
-      header: "PLACA",
-      size: 30, //small column
-    },
-    {
-      accessorKey: "Observacion",
-      header: "OBSERVACION",
-      size: 150, //small column
-    },
-    {
-      accessorKey: "select",
-      header: "SELECCIONAR",
-      Cell: ({ row }) => (
-        <button onClick={() => handleRowClick(row.original)}>
-          Seleccionar
-        </button>
-      ),
-    },
-  ];
+
+  const SeriesColumns = useMemo(
+    () => [
+      {
+        accessorKey: "Serie",
+        header: "SERIE",
+        size: 30,
+      },
+      {
+        accessorKey: "Placa",
+        header: "PLACA",
+        size: 30,
+      },
+      {
+        accessorKey: "Observacion",
+        header: "OBSERVACION",
+        size: 150,
+      },
+    ],
+    []
+  );
+
+  const table = useMaterialReactTable({
+    columns: SeriesColumns,
+    data: SeriessData,
+    getRowId: (row) => row.Serie,
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: () => {
+        setRowSelection((prev) => ({
+          [row.id]: !prev[row.id],
+        }));
+        handleRowClick(row);
+      },
+      selected: !!rowSelection[row.id],
+      sx: {
+        cursor: "pointer",
+        backgroundColor: rowSelection[row.id] ? "lightgreen" : "white",
+      },
+    }),
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection, isLoading: loadingTable },
+    renderBottomToolbarCustomActions: () => (
+      <Stack direction="row" sx={{ m: 1 }}>
+        <Box>
+          <Tooltip title="Agregar">
+            <IconButton onClick={() => setAddStoreShowModal(true)}>
+              <AddCircleIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Editar">
+            <IconButton>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Eliminar">
+            <IconButton>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Detalles">
+            <IconButton>
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Stack>
+    ),
+  });
+
   return (
     <Box>
       <Box>
-        <MaterialReactTable
-          columns={SeriesColumns}
-          data={SeriessData}
-          state={{ isLoading: loadingTable }}
-          initialState={{ density: "compact", showGlobalFilter: true }}
-          renderTopToolbarCustomActions={({ table }) => (
-            <>
-              {/* ------- BARRA DE ACCIONES ------ */}
-              <Stack direction="row" sx={{ m: 1 }}>
-                <Box>
-                  <Tooltip title="Agregar">
-                    <IconButton onClick={() => setAddSeriesShowModal(true)}>
-                      <AddCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Editar">
-                    <IconButton>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Eliminar">
-                    <IconButton>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Detalles ">
-                    <IconButton>
-                      <InfoIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Stack>
-              {/* ------- BARRA DE ACCIONES FIN ------ */}
-            </>
-          )}
-        />
+        <MaterialReactTable table={table} />
       </Box>
-      {/* M O D A L E S */}
       <Dialog open={AddSeriesShowModal}>
         <AddSeriesModal
           AddSeriesShowModal={AddSeriesShowModal}
@@ -137,4 +141,5 @@ const SeriessTable = () => {
     </Box>
   );
 };
+
 export default SeriessTable;

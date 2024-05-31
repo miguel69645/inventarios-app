@@ -2,7 +2,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 //FIC: Material UI
 import { MaterialReactTable } from "material-react-table";
-import { Box, Stack, Tooltip, Button, IconButton, Dialog } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Tooltip,
+  Button,
+  IconButton,
+  Dialog,
+  Checkbox,
+} from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
@@ -67,18 +75,32 @@ const StatusTable = ({ statusType }) => {
     statusType,
   ]);
 
-  const StatusColumns = [
-    {
-      accessorKey: "IdTipoEstatusOK",
-      header: "IDTIPOSTATUS",
-      size: 100, //small column
-    },
-    {
-      accessorKey: "Actual",
-      header: "ACTUAL",
-      size: 30, //small column
-    },
-  ];
+  const StatusColumns = useMemo(
+    () => [
+      {
+        accessorKey: "IdTipoEstatusOK",
+        header: "IDTIPOSTATUS",
+        size: 100, //small column
+      },
+      {
+        accessorKey: "Actual",
+        header: "ACTUAL",
+        size: 30, //small column
+        Cell: ({ row }) => {
+          return (
+            <Checkbox
+              checked={
+                row.original.Actual &&
+                row.original.Actual.trim().toUpperCase() === "S"
+              }
+              disabled
+            />
+          );
+        },
+      },
+    ],
+    []
+  );
   return (
     <Box>
       <Box>
