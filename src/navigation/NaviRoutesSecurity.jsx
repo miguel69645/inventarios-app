@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Home from "../security/home/pages/Home";
-import Business from "../security/business//pages/Business"
-import Error from "../share/errors/pages/Error";
+import Business from "../security/business/pages/Business"
 import Institutes from "../security/institutes/pages/Institutes"
+import Error from "../share/errors/pages/Error";
 
 
 const router = createBrowserRouter([
@@ -15,10 +15,10 @@ const router = createBrowserRouter([
         path: "/institutes",
         element: <Institutes />,
       },
-      {
-        path: "/business",
-        element: <Business />,
-      },
+      // {
+      //   path: "/business",
+      //   element: <Business />,
+      // },
     ],
   },
 ]);

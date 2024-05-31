@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 const pages = [
   "INSTITUTOS",
-  "NEGOCIOS",
+  // "NEGOCIOS",
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 function ResponsiveAppBar() {
@@ -61,9 +61,9 @@ function ResponsiveAppBar() {
       case "INSTITUTOS":
         navigate("/institutes");
         break;
-      case "NEGOCIOS":
-        navigate("/business");
-        break;
+      // case "NEGOCIOS":
+      //   navigate("/business");
+      //   break;
     }
   }, [myPages]);
   //-----------------------------------------------
