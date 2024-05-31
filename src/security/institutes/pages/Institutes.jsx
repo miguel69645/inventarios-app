@@ -12,7 +12,7 @@ export default function Institutes() {
   return (
     <Box>
       <InstitutesNavTab
-        currentRowInInstitutesTab={currentRowInInstitutesTab}
+        currentRowInInstitutesTab={setCurrentRowInInstitutesTab}
         setCurrentNameTabInPrincipalTab={setCurrentTabInPrincipalTab}
       />
       {currentTabInPrincipalTab == "INSTITUTOS" && <InstitutesTab />}

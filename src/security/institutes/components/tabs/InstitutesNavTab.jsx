@@ -51,7 +51,7 @@ const InstitutesNavTab = ({
         variant={"fullWidth"}
         onChange={handleChange}
         aria-label="icon tabs example"
-        textColor=""
+        textColor="inherit"
       >
         {InstitutesTabs.map((tab) => {
           return (
