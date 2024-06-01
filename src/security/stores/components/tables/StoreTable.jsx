@@ -3,7 +3,7 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { Box, Stack, Tooltip, IconButton, Dialog } from "@mui/material";
+import { Box, Stack, Tooltip, IconButton, Dialog, Checkbox } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
@@ -59,9 +59,25 @@ const StoresTable = () => {
         size: 30,
       },
       {
+        accessorKey: "Descripcion",
+        header: "DESCRIPCION",
+        size: 30,
+      },
+      {
         accessorKey: "Principal",
         header: "PRINCIPAL",
         size: 30,
+        Cell: ({ row }) => {
+          return (
+            <Checkbox
+              checked={
+                row.original.Principal &&
+                row.original.Principal.trim().toUpperCase() === "S"
+              }
+              disabled
+            />
+          );
+        },
       },
       {
         accessorKey: "CantidadActual",

@@ -6,6 +6,7 @@ export const StoreValues = (values) => {
   let Store = StoreModel();
   (Store._id = values._id),
   (Store.IdAlmacenOK = values.IdAlmacenOK),
+    (Store.Descripcion = values.Descripcion),
     (Store.Principal = values.Principal),
     (Store.CantidadActual = values.CantidadActual),
     (Store.CantidadDisponible = values.CantidadDisponible),
