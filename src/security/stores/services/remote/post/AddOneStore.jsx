@@ -1,27 +1,29 @@
 import axios from "axios";
 
-export function AddOneStore(store) {
-  console.log("<<EJECUTA>> API <<AddOneInstitute>> Requiere:", store);
+export async function postStore(id, idNegocioOk, almacen) {
+  console.log(id, idNegocioOk, almacen);
   return new Promise((resolve, reject) => {
     axios
-      .post(import.meta.env.VITE_CAT_STORE_URL, store)
+      .post(
+        `${
+          import.meta.env.VITE_GET_ALL
+        }/${id}/negocios/${idNegocioOk}/almacenes`,
+        almacen
+      )
       .then((response) => {
-        console.log("<<RESPONSE>> AddOneInstitute", store);
-        const data = response.data;
-        console.log(response.status);
-
-        if (response.status === 200 || response.status === 201) {
-          resolve(data);
+        if (response.status === 201) {
+          console.log("Almacen agregado con éxito", response.data);
+          resolve(response.data);
         } else {
           console.error(
-            "<<ERROR>> <<NO>> se ejecuto la API <<AddOneStore>> de forma correcta",
-            data
+            "No se pudo realizar correctamente la petición <<postStore - Services>>",
+            response.data
           );
-          reject(data);
+          reject(response.data);
         }
       })
       .catch((error) => {
-        console.error("<<ERROR>> en API <<AddOneStore>>", error);
+        console.error("Error en <<postStore - Store>>", error);
         reject(error);
       });
   });
