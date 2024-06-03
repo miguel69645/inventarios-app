@@ -1,12 +1,12 @@
-//FIC: React
 import React, { useEffect, useMemo, useState } from "react";
-//FIC: Material UI
-import { MaterialReactTable } from "material-react-table";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import {
   Box,
   Stack,
   Tooltip,
-  Button,
   IconButton,
   Dialog,
   Checkbox,
@@ -15,15 +15,11 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
-//FIC: DB
-//import StatussStaticData from '../../../../../db/security/json/Statuss/StatussData';
 import { getAllStatus } from "../../services/remote/get/getAllStatus";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-//FIC: Modals
+import { useSelector, useDispatch } from "react-redux";
 import AddStatusModal from "../modals/AddStatusModal";
-//FIC: Columns Table Definition.
-//FIC: Table - FrontEnd.
+import { SET_ID_TIPO_ESTATUS_OK } from "../../../redux/slices/statusSlice"; // Make sure you have this action in your Redux slice
+
 const StatusTable = ({ statusType }) => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
   const selectedBusinessId = useSelector(
@@ -35,14 +31,15 @@ const StatusTable = ({ statusType }) => {
   const selectedSeriesId = useSelector(
     (state) => state.series.selectedSeriesId
   );
-  //FIC: controlar el estado del indicador (loading).
-  const [loadingTable, setLoadingTable] = useState(true);
 
-  //FIC: controlar el estado de la data de Institutos.
+  const [loadingTable, setLoadingTable] = useState(true);
   const [StatusData, setStatusData] = useState([]);
-  //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
+  const [selectedStatusId, setSelectedStatusId] = useState(null);
+  const [rowSelection, setRowSelection] = useState({});
   const [AddStatusShowModal, setAddStatusShowModal] = useState(false);
+
   const dispatch = useDispatch();
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -52,12 +49,18 @@ const StatusTable = ({ statusType }) => {
           selectedStoresId,
           selectedSeriesId
         );
-        // Filtrar los datos en función del tipo de estado
         const filteredStatusData = AllStatusData.filter((status) =>
           status.IdTipoEstatusOK.includes(statusType)
         );
         setStatusData(filteredStatusData);
         setLoadingTable(false);
+        if (filteredStatusData.length > 0) {
+          dispatch(
+            SET_ID_TIPO_ESTATUS_OK(filteredStatusData[0].IdTipoEstatusOK)
+          );
+          setSelectedStatusId(filteredStatusData[0].IdTipoEstatusOK);
+          setRowSelection({ [filteredStatusData[0].IdTipoEstatusOK]: true });
+        }
       } catch (error) {
         console.error(
           `Error al obtener los estados en useEffect de StatusTable (${statusType}):`,
@@ -75,73 +78,88 @@ const StatusTable = ({ statusType }) => {
     statusType,
   ]);
 
+  const handleRowClick = (row) => {
+    dispatch(SET_ID_TIPO_ESTATUS_OK(row.original.IdTipoEstatusOK));
+    setSelectedStatusId(row.original.IdTipoEstatusOK);
+    setRowSelection((prev) => ({
+      [row.id]: !prev[row.id],
+    }));
+  };
+
   const StatusColumns = useMemo(
     () => [
       {
         accessorKey: "IdTipoEstatusOK",
         header: "IDTIPOSTATUS",
-        size: 100, //small column
+        size: 100,
       },
       {
         accessorKey: "Actual",
         header: "ACTUAL",
-        size: 30, //small column
-        Cell: ({ row }) => {
-          return (
-            <Checkbox
-              checked={
-                row.original.Actual &&
-                row.original.Actual.trim().toUpperCase() === "S"
-              }
-              disabled
-            />
-          );
-        },
+        size: 30,
+        Cell: ({ row }) => (
+          <Checkbox
+            checked={
+              row.original.Actual &&
+              row.original.Actual.trim().toUpperCase() === "S"
+            }
+            disabled
+          />
+        ),
       },
     ],
     []
   );
+
+  const table = useMaterialReactTable({
+    columns: StatusColumns,
+    data: StatusData,
+    getRowId: (row) => row.IdTipoEstatusOK,
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: () => {
+        handleRowClick(row);
+      },
+      selected: !!rowSelection[row.id],
+      sx: {
+        cursor: "pointer",
+        backgroundColor: rowSelection[row.id] ? "lightgreen" : "white",
+      },
+    }),
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection, isLoading: loadingTable },
+    renderTopToolbarCustomActions: () => (
+      <Stack direction="row" sx={{ m: 1 }}>
+        <Box>
+          <Tooltip title="Agregar">
+            <IconButton onClick={() => setAddStatusShowModal(true)}>
+              <AddCircleIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Editar">
+            <IconButton>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Eliminar">
+            <IconButton>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Detalles">
+            <IconButton>
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Stack>
+    ),
+  });
+
   return (
     <Box>
       <Box>
-        <MaterialReactTable
-          columns={StatusColumns}
-          data={StatusData}
-          state={{ isLoading: loadingTable }}
-          initialState={{ density: "compact", showGlobalFilter: true }}
-          renderTopToolbarCustomActions={({ table }) => (
-            <>
-              {/* ------- BARRA DE ACCIONES ------ */}
-              <Stack direction="row" sx={{ m: 1 }}>
-                <Box>
-                  <Tooltip title="Agregar">
-                    <IconButton onClick={() => setAddStatusShowModal(true)}>
-                      <AddCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Editar">
-                    <IconButton>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Eliminar">
-                    <IconButton>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Detalles ">
-                    <IconButton>
-                      <InfoIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Stack>
-              {/* ------- BARRA DE ACCIONES FIN ------ */}
-            </>
-          )}
-        />
+        <MaterialReactTable table={table} />
       </Box>
-      {/* M O D A L E S */}
       <Dialog open={AddStatusShowModal}>
         <AddStatusModal
           AddStatusShowModal={AddStatusShowModal}
@@ -152,4 +170,5 @@ const StatusTable = ({ statusType }) => {
     </Box>
   );
 };
+
 export default StatusTable;

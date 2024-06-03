@@ -1,12 +1,12 @@
-//FIC: React
 import React, { useEffect, useMemo, useState } from "react";
-//FIC: Material UI
-import { MaterialReactTable } from "material-react-table";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+} from "material-react-table";
 import {
   Box,
   Stack,
   Tooltip,
-  Button,
   IconButton,
   Dialog,
   Checkbox,
@@ -15,15 +15,11 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
-//FIC: DB
-//import LocationsStaticData from '../../../../../db/security/json/Locations/LocationsData';
 import { getAllLocations } from "../../services/remote/get/getAllLocation";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-//FIC: Modals
+import { useSelector, useDispatch } from "react-redux";
 import AddLocationModal from "../modals/AddLocationModal";
-//FIC: Columns Table Definition.
-//FIC: Table - FrontEnd.
+import { SET_ID_UBICACION } from "../../../redux/slices/locationsSlice";
+
 const LocationsTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
   const selectedBusinessId = useSelector(
@@ -35,14 +31,15 @@ const LocationsTable = () => {
   const selectedSeriesId = useSelector(
     (state) => state.series.selectedSeriesId
   );
-  //FIC: controlar el estado del indicador (loading).
-  const [loadingTable, setLoadingTable] = useState(true);
 
-  //FIC: controlar el estado de la data de Institutos.
+  const [loadingTable, setLoadingTable] = useState(true);
   const [LocationsData, setLocationsData] = useState([]);
-  //FIC: controlar el estado que muesta u oculta la modal de nuevo Instituto.
+  const [selectedUbicacionId, setSelectedUbicacionId] = useState(null);
+  const [rowSelection, setRowSelection] = useState({});
   const [AddLocationShowModal, setAddLocationShowModal] = useState(false);
+
   const dispatch = useDispatch();
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -54,27 +51,37 @@ const LocationsTable = () => {
         );
         setLocationsData(AllLocationsData);
         setLoadingTable(false);
-        //setLocationsData(LocationsStaticData);
+        if (AllLocationsData.length > 0) {
+          dispatch(SET_ID_UBICACION(AllLocationsData[0].Ubicacion));
+          setSelectedUbicacionId(AllLocationsData[0].Ubicacion);
+          setRowSelection({ [AllLocationsData[0].Ubicacion]: true });
+        }
       } catch (error) {
         console.error(
-          "Error al obtener los institutos en useEffect de LocationsTable:",
+          "Error al obtener las ubicaciones en useEffect de LocationsTable:",
           error
         );
       }
     }
     fetchData();
   }, [dispatch, id, selectedBusinessId, selectedStoresId, selectedSeriesId]);
+
+  const handleRowClick = (row) => {
+    dispatch(SET_ID_UBICACION(row.original.Ubicacion));
+    setSelectedUbicacionId(row.original.Ubicacion);
+  };
+
   const LocationsColumns = useMemo(
     () => [
       {
         accessorKey: "Ubicacion",
         header: "ID_UBICACION",
-        size: 30, //small column
+        size: 30,
       },
       {
         accessorKey: "Actual",
         header: "ACTUAL",
-        size: 30, //small column
+        size: 30,
         Cell: ({ row }) => {
           return (
             <Checkbox
@@ -90,47 +97,59 @@ const LocationsTable = () => {
     ],
     []
   );
+
+  const table = useMaterialReactTable({
+    columns: LocationsColumns,
+    data: LocationsData,
+    getRowId: (row) => row.Ubicacion,
+    muiTableBodyRowProps: ({ row }) => ({
+      onClick: () => {
+        setRowSelection((prev) => ({
+          [row.id]: !prev[row.id],
+        }));
+        handleRowClick(row);
+      },
+      selected: !!rowSelection[row.id],
+      sx: {
+        cursor: "pointer",
+        backgroundColor: rowSelection[row.id] ? "lightgreen" : "white",
+      },
+    }),
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection, isLoading: loadingTable },
+    renderTopToolbarCustomActions: () => (
+      <Stack direction="row" sx={{ m: 1 }}>
+        <Box>
+          <Tooltip title="Agregar">
+            <IconButton onClick={() => setAddLocationShowModal(true)}>
+              <AddCircleIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Editar">
+            <IconButton>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Eliminar">
+            <IconButton>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Detalles">
+            <IconButton>
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Stack>
+    ),
+  });
+
   return (
     <Box>
       <Box>
-        <MaterialReactTable
-          columns={LocationsColumns}
-          data={LocationsData}
-          state={{ isLoading: loadingTable }}
-          initialState={{ density: "compact", showGlobalFilter: true }}
-          renderTopToolbarCustomActions={({ table }) => (
-            <>
-              {/* ------- BARRA DE ACCIONES ------ */}
-              <Stack direction="row" sx={{ m: 1 }}>
-                <Box>
-                  <Tooltip title="Agregar">
-                    <IconButton onClick={() => setAddLocationShowModal(true)}>
-                      <AddCircleIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Editar">
-                    <IconButton>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Eliminar">
-                    <IconButton>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Detalles ">
-                    <IconButton>
-                      <InfoIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </Stack>
-              {/* ------- BARRA DE ACCIONES FIN ------ */}
-            </>
-          )}
-        />
+        <MaterialReactTable table={table} />
       </Box>
-      {/* M O D A L E S */}
       <Dialog open={AddLocationShowModal}>
         <AddLocationModal
           AddLocationShowModal={AddLocationShowModal}
@@ -141,4 +160,5 @@ const LocationsTable = () => {
     </Box>
   );
 };
+
 export default LocationsTable;
