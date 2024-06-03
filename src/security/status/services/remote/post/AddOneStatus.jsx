@@ -1,27 +1,31 @@
 import axios from "axios";
 
-export function AddOneStatus(status) {
-  console.log("<<EJECUTA>> API <<AddOneStatus>> Requiere:", status);
+export async function postStatusFisico(ids, status, statusType) {
+  console.log(`${import.meta.env.VITE_GET_ALL}/${ids[0]}/negocios/${
+    ids[1]
+  }/almacenes/${ids[2]}/series/${ids[3]}/${statusType == "Fisico" ? "estatus_fisico" : "estatus_venta"}`);
   return new Promise((resolve, reject) => {
     axios
-      .post(import.meta.env.VITE_CAT_STATUS_URL, status)
+      .post(
+        `${import.meta.env.VITE_GET_ALL}/${ids[0]}/negocios/${
+          ids[1]
+        }/almacenes/${ids[2]}/series/${ids[3]}/${statusType == "Fisico" ? "estatus_fisico" : "estatus_venta"}`,
+        status
+      )
       .then((response) => {
-        console.log("<<RESPONSE>> AddOneStatus", status);
-        const data = response.data;
-        console.log(response.status);
-
-        if (response.status === 200 || response.status === 201) {
-          resolve(data);
+        if (response.status === 201) {
+          console.log("Status fisico agregado con éxito", response.data);
+          resolve(response.data);
         } else {
           console.error(
-            "<<ERROR>> <<NO>> se ejecuto la API <<AddOneStatus>> de forma correcta",
-            data
+            "No se pudo realizar correctamente la petición <<postStatus - Services>>",
+            response.data
           );
-          reject(data);
+          reject(response.data);
         }
       })
       .catch((error) => {
-        console.error("<<ERROR>> en API <<AddOneStatus>>", error);
+        console.error("Error en <<postStatus - Status>>", error);
         reject(error);
       });
   });

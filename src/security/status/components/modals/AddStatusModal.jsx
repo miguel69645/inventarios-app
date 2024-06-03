@@ -15,8 +15,10 @@ import {
   Select,
   MenuItem,
   FormHelperText,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { useSelector } from "react-redux";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 //FIC: Formik - Yup
@@ -25,59 +27,46 @@ import * as Yup from "yup";
 //FIC: Helpers
 import { StatusValues } from "../../helpers/StatusValues";
 //FIC: Services
-import { AddOneStatus } from "../../services/remote/post/AddOneStatus";
-import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
+import { postStatusFisico } from "../../services/remote/post/AddOneStatus";
 const AddStatusModal = ({
   AddStatusShowModal,
   setAddStatusShowModal,
+  statusType,
 }) => {
+  const instituto = useSelector((state) => state.institutes.institutesDataArr);
+  const negocio = useSelector((state) => state.business.selectedBusinessId);
+  const almacenes = useSelector((state) => state.stores.selectedStoresId);
+  const series = useSelector((state) => state.series.selectedSeriesId);
+  const ids = [instituto, negocio, almacenes, series];
+  console.log("ids:", ids);
+
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
-  const [StatussValuesLabel, setStatussValuesLabel] = useState([]);
   const [Loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    getDataSelectStatussType();
-  }, []);
+  const status =
+    statusType == "Fisico"
+      ? [
+          "IdEstatusFisicoInventariosSeries-IdUsado",
+          "IdEstatusFisicoInventariosSeries-IdNuevo",
+        ]
+      : [
+          "IdEstatusVentaInventariosSeries-IdDisponible",
+          "IdEstatusVentaInventariosSeries-IdReservado",
+          "IdEstatusVentaInventariosSeries-IdVendido",
+        ];
 
-  //FIC: Ejecutamos la API que obtiene todas las etiquetas
-  //y filtramos solo la etiqueta de Tipos Giros de Status
-  //para que los ID y Nombres se agreguen como items en el
-  //control <Select> del campo IdTipoGiroOK en la Modal.
-  async function getDataSelectStatussType() {
-    try {
-      const Labels = await GetAllLabels();
-      console.log("Labels:", Labels); // Registrar la respuesta completa
-      const StatussTypes = Labels.find(
-        (label) => label.IdEtiquetaOK === "IdTipoGiros"
-      );
-      console.log("StatussTypes:", StatussTypes); // Registrar el resultado de la búsqueda
-      if (StatussTypes) {
-        setStatussValuesLabel(StatussTypes.valores);
-      } else {
-        console.error(
-          "No se encontraron etiquetas para Tipos Giros de Status"
-        );
-      }
-    } catch (e) {
-      console.error(
-        "Error al obtener Etiquetas para Tipos Giros de Status:",
-        e
-      );
-    }
-  }
+  useEffect(() => {}, []);
 
   //FIC: Definition Formik y Yup.
   const formik = useFormik({
     initialValues: {
-      IdTipoEstatusOK: "",
+      IdTipoEstatusOK: status[0],
       Actual: "",
-      Observacion: "",
     },
     validationSchema: Yup.object({
       IdTipoEstatusOK: Yup.string().required("Campo requerido"),
-      Actual: Yup.string().required("Campo requerido"),
-      Observacion: Yup.string().required("Campo requerido"),
+      Actual: Yup.boolean().required("Campo requerido"),
     }),
     onSubmit: async (values) => {
       //FIC: mostramos el Loading.
@@ -91,14 +80,8 @@ const AddStatusModal = ({
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
-        //FIC: si fuera necesario meterle valores compuestos o no compuestos
-        //a alguns propiedades de formik por la razon que sea, se muestren o no
-        //estas propiedades en la ventana modal a travez de cualquier control.
-        //La forma de hacerlo seria:
-        //formik.values.IdInstitutoBK = `${formik.values.IdInstitutoOK}-${formik.values.IdCEDI}`;
-        //formik.values.Matriz = autoChecksSelecteds.join(",");
-        //FIC: mutar los valores (true o false) de Matriz.
-        values.Matriz == true ? (values.Matriz = "S") : (values.Matriz = "N");
+        values.Actual == true ? (values.Actual = "S") : (values.Actual = "N");
+        console.log(values);
         //FIC: Extraer los datos de los campos de
         //la ventana modal que ya tiene Formik.
         const Status = StatusValues(values);
@@ -109,7 +92,7 @@ const AddStatusModal = ({
         //construye todo el JSON de la coleccion de Status para
         //que pueda enviarse en el "body" de la API y determinar si
         //la inserción fue o no exitosa.
-        await AddOneStatus(Status);
+        await postStatusFisico(ids, Status, statusType);
         //FIC: si no hubo error en el metodo anterior
         //entonces lanzamos la alerta de exito.
         setMensajeExitoAlert("Instituto fue creado y guardado Correctamente");
@@ -151,24 +134,9 @@ const AddStatusModal = ({
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          {/* FIC: Campos de captura o selección */}
-          <TextField
-            id="IdInstitutoOK"
-            label="IdInstitutoOK*"
-            value={formik.values.IdInstitutoOK}
-            /* onChange={formik.handleChange} */
-            {...commonTextFieldProps}
-            error={
-              formik.touched.IdInstitutoOK &&
-              Boolean(formik.errors.IdInstitutoOK)
-            }
-            helperText={
-              formik.touched.IdInstitutoOK && formik.errors.IdInstitutoOK
-            }
-          />
-          <TextField
+          <Autocomplete
+            disablePortal
             id="IdTipoEstatusOK"
-            label="IdTipoEstatusOK*"
             value={formik.values.IdTipoEstatusOK}
             {...commonTextFieldProps}
             error={
@@ -178,26 +146,25 @@ const AddStatusModal = ({
             helperText={
               formik.touched.IdTipoEstatusOK && formik.errors.IdTipoEstatusOK
             }
+            options={status}
+            renderInput={(params) => (
+              <TextField {...params} label="IdTipoEstatusOK" />
+            )}
+            onChange={(event, newValue) => {
+              formik.setFieldValue("IdTipoEstatusOK", newValue);
+            }}
           />
-          <TextField
-            id="Actual"
+          <FormControlLabel
             label="Actual*"
-            value={formik.values.Actual}
-            {...commonTextFieldProps}
-            error={
-              formik.touched.Actual && Boolean(formik.errors.Actual)
+            control={
+              <Checkbox
+                id="Actual"
+                value={formik.values.Actual}
+                {...commonTextFieldProps}
+                error={formik.touched.Actual && Boolean(formik.errors.Actual)}
+                helperText={formik.touched.Actual && formik.errors.Actual}
+              />
             }
-            helperText={
-              formik.touched.Actual && formik.errors.Actual
-            }
-          />
-          <TextField
-            id="Observacion"
-            label="Observacion*"
-            value={formik.values.Observacion}
-            {...commonTextFieldProps}
-            error={formik.touched.Observacion && Boolean(formik.errors.Observacion)}
-            helperText={formik.touched.Observacion && formik.errors.Observacion}
           />
         </DialogContent>
         {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}

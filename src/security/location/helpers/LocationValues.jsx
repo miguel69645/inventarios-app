@@ -4,12 +4,7 @@ import { InstituteModel } from "../models/InstitutesModel";
 //enviados desde el evento onSubmit de Formik
 export const LocationValues = (values) => {
   let Institute = InstituteModel();
-  (Institute.IdInstitutoOK = values.IdInstitutoOK),
-    (Institute.IdInstitutoBK = values.IdInstitutoBK),
-    (Institute.DesInstituto = values.DesInstituto),
-    (Institute.Alias = values.Alias),
-    (Institute.Matriz = values.Matriz),
-    (Institute.IdTipoGiroOK = values.IdTipoGiroOK),
-    (Institute.IdInstitutoSupOK = values.IdInstitutoSupOK);
+  (Institute.Ubicacion = values.Ubicacion),
+    (Institute.Actual = values.Actual);
   return Institute;
 };

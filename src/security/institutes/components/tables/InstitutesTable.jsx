@@ -9,10 +9,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllInstitutes } from "../../services/remote/get/getAllInstitutes";
+import { getOneInstitute } from "../../services/remote/get/getOneInstitute";
 import { getConcatenatedDescription } from "../../services/remote/get/getDescription";
 import { useDispatch } from "react-redux";
 import { SET_ID_INSTITUTES } from "../../../redux/slices/institutesSlice";
 import AddInstituteModal from "../modals/AddInstituteModal";
+import UpdateInstituteModal from "../modals/UpdateInstituteModal";  
 
 const InstitutesTable = () => {
   const [loadingTable, setLoadingTable] = useState(true);
@@ -58,11 +60,24 @@ const InstitutesTable = () => {
       }
     }
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, addInstituteShowModal]);
 
   const handleRowClick = (row) => {
     setSelectedInstituteId(row.original._id);
     dispatch(SET_ID_INSTITUTES(row.original._id));
+    console.log(row.original._id);
+  };
+
+  const updateInstitutes = async () => {
+    try {
+      const AllInstitutesData = await getAllInstitutes();
+      setInstitutesData(AllInstitutesData);
+    } catch (error) {
+      console.error(
+        "Error al actualizar los institutos en updateInstitutes:",
+        error
+      );
+    }
   };
 
   const InstitutesColumns = useMemo(
@@ -168,6 +183,15 @@ const InstitutesTable = () => {
           onClose={() => setAddInstituteShowModal(false)}
         />
       </Dialog>
+      <Dialog open={UpdateInstituteShowModal}>
+        <UpdateInstituteModal
+          UpdateInstituteShowModal={UpdateInstituteShowModal}
+          setUpdateInstituteShowModal={setUpdateInstituteShowModal}
+          onClose={() => setUpdateInstituteShowModal(false)}
+          instituteId={selectedInstituteId}
+          updateInstitutes={updateInstitutes}
+        />
+        </Dialog>
       {/* Aquí también agregarás los diálogos para editar y ver detalles si los tienes */}
     </Box>
   );

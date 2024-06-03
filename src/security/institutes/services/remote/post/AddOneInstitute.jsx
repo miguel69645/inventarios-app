@@ -1,10 +1,11 @@
 import axios from "axios";
 
 export function AddOneInstitute(institute) {
+  
   console.log("<<EJECUTA>> API <<AddOneInstitute>> Requiere:", institute);
   return new Promise((resolve, reject) => {
     axios
-      .post(import.meta.env.VITE_CAT_INSTITUTES_URL, institute)
+      .post(import.meta.env.VITE_GET_ALL, institute)
       .then((response) => {
         console.log("<<RESPONSE>> AddOneInstitute", institute);
         const data = response.data;

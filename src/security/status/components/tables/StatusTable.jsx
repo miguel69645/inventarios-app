@@ -53,6 +53,7 @@ const StatusTable = ({ statusType }) => {
           selectedSeriesId
         );
         // Filtrar los datos en función del tipo de estado
+        console.log(statusType);
         const filteredStatusData = AllStatusData.filter((status) =>
           status.IdTipoEstatusOK.includes(statusType)
         );
@@ -73,6 +74,7 @@ const StatusTable = ({ statusType }) => {
     selectedStoresId,
     selectedSeriesId,
     statusType,
+    AddStatusShowModal
   ]);
 
   const StatusColumns = useMemo(
@@ -147,6 +149,7 @@ const StatusTable = ({ statusType }) => {
           AddStatusShowModal={AddStatusShowModal}
           setAddStatusShowModal={setAddStatusShowModal}
           onClose={() => setAddStatusShowModal(false)}
+          statusType={statusType}
         />
       </Dialog>
     </Box>

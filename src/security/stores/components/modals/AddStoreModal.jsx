@@ -25,12 +25,17 @@ import * as Yup from "yup";
 //FIC: Helpers
 import { StoreValues } from "../../helpers/StoreValues";
 //FIC: Services
-import { AddOneStore } from "../../services/remote/post/AddOneStore";
+import { postStore } from "../../services/remote/post/AddOneStore";
 import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
+import { useSelector } from "react-redux";
 const AddStoreModal = ({
   AddStoreShowModal,
   setAddStoreShowModal,
 }) => {
+  const instituto = useSelector((state) => state.institutes.institutesDataArr);
+  const negocio = useSelector((state) => state.business.selectedBusinessId);
+  const ids = [instituto, negocio];
+  console.log(ids)
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [StoresValuesLabel, setStoresValuesLabel] = useState([]);
@@ -82,10 +87,10 @@ const AddStoreModal = ({
     },
     validationSchema: Yup.object({
       IdAlmacenOK: Yup.string().required("Campo requerido"),
-      Principal: Yup.string().required("Campo requerido"),
+      Principal: Yup.boolean().required("Campo requerido"),
       CantidadActual: Yup.string().required("Campo requerido"),
       CantidadDisponible: Yup.string().required("Campo requerido"),
-      CantidadApartada: Yup.boolean().required("Campo requerido"),
+      CantidadApartada: Yup.string().required("Campo requerido"),
       CantidadTransito: Yup.string().required("Campo requerido"),
       CantidadMerma: Yup.string().required("Campo requerido"),
       StockMaximo: Yup.string().required("Campo requerido"),
@@ -106,6 +111,7 @@ const AddStoreModal = ({
       try {
         //FIC: Extraer los datos de los campos de
         //la ventana modal que ya tiene Formik.
+        values.Principal = values.Principal === "true" ? "S" : "N";
         const Store = StoreValues(values);
         //FIC: mandamos a consola los datos extraidos
         console.log("<<Store>>", Store);
@@ -114,7 +120,7 @@ const AddStoreModal = ({
         //construye todo el JSON de la coleccion de Almacenes para
         //que pueda enviarse en el "body" de la API y determinar si
         //la inserción fue o no exitosa.
-        await AddOneStore(Store);
+        await postStore(ids, Store);
         //FIC: si no hubo error en el metodo anterior
         //entonces lanzamos la alerta de exito.
         setMensajeExitoAlert("Almacen fue creado y guardado Correctamente");
@@ -171,7 +177,10 @@ const AddStoreModal = ({
               formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK
             }
           />
-          <TextField
+          <FormControlLabel
+          label="Principal"
+          control={
+            <Checkbox
             id="Principal"
             label="Principal*"
             value={formik.values.Principal}
@@ -184,6 +193,10 @@ const AddStoreModal = ({
               formik.touched.Principal && formik.errors.Principal
             }
           />
+          }
+          >
+            
+          </FormControlLabel>
           <TextField
             id="CantidadActual"
             label="CantidadActual*"
@@ -203,6 +216,46 @@ const AddStoreModal = ({
             {...commonTextFieldProps}
             error={formik.touched.CantidadDisponible && Boolean(formik.errors.CantidadDisponible)}
             helperText={formik.touched.CantidadDisponible && formik.errors.CantidadDisponible}
+          />
+          <TextField
+            id="CantidadApartada"
+            label="CantidadApartada*"
+            value={formik.values.CantidadApartada}
+            {...commonTextFieldProps}
+            error={formik.touched.CantidadApartada && Boolean(formik.errors.CantidadApartada)}
+            helperText={formik.touched.CantidadApartada && formik.errors.CantidadApartada}
+          />
+          <TextField
+            id="CantidadTransito"
+            label="CantidadTransito*"
+            value={formik.values.CantidadTransito}
+            {...commonTextFieldProps}
+            error={formik.touched.CantidadTransito && Boolean(formik.errors.CantidadTransito)}
+            helperText={formik.touched.CantidadTransito && formik.errors.CantidadTransito}
+          />
+           <TextField
+            id="CantidadMerma"
+            label="CantidadMerma*"
+            value={formik.values.CantidadMerma}
+            {...commonTextFieldProps}
+            error={formik.touched.CantidadMerma && Boolean(formik.errors.CantidadMerma)}
+            helperText={formik.touched.CantidadMerma && formik.errors.CantidadMerma}
+          />
+          <TextField
+            id="StockMaximo"
+            label="StockMaximo*"
+            value={formik.values.StockMaximo}
+            {...commonTextFieldProps}
+            error={formik.touched.StockMaximo && Boolean(formik.errors.StockMaximo)}
+            helperText={formik.touched.StockMaximo && formik.errors.StockMaximo}
+          />
+          <TextField
+            id="StockMinimo"
+            label="StockMinimo*"
+            value={formik.values.StockMinimo}
+            {...commonTextFieldProps}
+            error={formik.touched.StockMinimo && Boolean(formik.errors.StockMinimo)}
+            helperText={formik.touched.StockMinimo && formik.errors.StockMinimo}
           />
           
         </DialogContent>

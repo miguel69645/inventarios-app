@@ -1,28 +1,23 @@
 import axios from "axios";
 
-export function AddOneBusiness(business) {
-  console.log("<<EJECUTA>> API <<AddOneBusiness>> Requiere:", business);
+export async function postBusiness(id, negocio) {
   return new Promise((resolve, reject) => {
-    const documentId = business._id;
-    const newBusinessEntry = business.datos
     axios
-      .get(`import.meta.env.VITE_GET_ALL/${documentId}`)
+      .post(`${import.meta.env.VITE_GET_ALL}/${id}/negocios`, negocio)
       .then((response) => {
-        
-        if (response.status === 200 || response.status === 201) {
-          const data = response.data;
-          data.negocios.push()
-          resolve(data);
+        if (response.status === 201) {
+          console.log("Negocio agregado con éxito", response.data);
+          resolve(response.data);
         } else {
           console.error(
-            "<<ERROR>> <<NO>> se ejecuto la API <<AddOneBusiness>> de forma correcta",
-            data
+            "No se pudo realizar correctamente la petición <<postBusiness - Services>>",
+            response.data
           );
-          reject(data);
+          reject(response.data);
         }
       })
       .catch((error) => {
-        console.error("<<ERROR>> en API <<AddOneBusiness>>", error);
+        console.error("Error en <<postBusiness - Business>>", error);
         reject(error);
       });
   });

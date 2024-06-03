@@ -1,27 +1,32 @@
 import axios from "axios";
 
-export function AddOneLocation(location) {
-  console.log("<<EJECUTA>> API <<AddOnelocation>> Requiere:", location);
+export async function postLocation(
+  ids,
+  location
+) {
+  console.log(ids, location);
   return new Promise((resolve, reject) => {
     axios
-      .post(import.meta.env.VITE_CAT_LOCATIONS_URL, location)
+      .post(
+        `${
+          import.meta.env.VITE_GET_ALL
+        }/${ids[0]}/negocios/${ids[1]}/almacenes/${ids[2]}/series/${ids[3]}/ubicaciones`,
+        location
+      )
       .then((response) => {
-        console.log("<<RESPONSE>> AddOnelocation", location);
-        const data = response.data;
-        console.log(response.status);
-
-        if (response.status === 200 || response.status === 201) {
-          resolve(data);
+        if (response.status === 201) {
+          console.log("Ubicacion agregado con éxito", response.data);
+          resolve(response.data);
         } else {
           console.error(
-            "<<ERROR>> <<NO>> se ejecuto la API <<AddOnelocation>> de forma correcta",
-            data
+            "No se pudo realizar correctamente la petición <<postLocation - Services>>",
+            response.data
           );
-          reject(data);
+          reject(response.data);
         }
       })
       .catch((error) => {
-        console.error("<<ERROR>> en API <<AddOnelocation>>", error);
+        console.error("Error en <<postLocation - Location>>", error);
         reject(error);
       });
   });

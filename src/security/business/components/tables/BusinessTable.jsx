@@ -62,7 +62,7 @@ const BusinessTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id]);
+  }, [dispatch, id, AddBusinessShowModal]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_BUSINESS(row.original.IdNegocioOK));

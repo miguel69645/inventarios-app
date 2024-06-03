@@ -51,7 +51,7 @@ const SeriessTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, selectedBusinessId, selectedStoresId]);
+  }, [dispatch, id, selectedBusinessId, selectedStoresId, AddSeriesShowModal]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_SERIES(row.original.Serie));
@@ -102,7 +102,7 @@ const SeriessTable = () => {
       <Stack direction="row" sx={{ m: 1 }}>
         <Box>
           <Tooltip title="Agregar">
-            <IconButton onClick={() => setAddStoreShowModal(true)}>
+            <IconButton onClick={() => setAddSeriesShowModal(true)}>
               <AddCircleIcon />
             </IconButton>
           </Tooltip>

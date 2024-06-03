@@ -17,6 +17,7 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import { useSelector } from "react-redux";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 //FIC: Formik - Yup
@@ -25,47 +26,22 @@ import * as Yup from "yup";
 //FIC: Helpers
 import { SeriesValues } from "../../helpers/SeriesValues";
 //FIC: Services
-import { AddOneSeries } from "../../services/remote/post/AddOneSerie";
-import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
+import { postSerie } from "../../services/remote/post/AddOneSerie";
 const AddSeriesModal = ({
   AddSeriesShowModal,
   setAddSeriesShowModal,
 }) => {
+  const instituto = useSelector((state) => state.institutes.institutesDataArr);
+  const negocio = useSelector((state) => state.business.selectedBusinessId);
+  const store = useSelector((state) => state.stores.selectedStoresId);
+  const ids = [instituto, negocio, store];
+  
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
-  const [SeriessValuesLabel, setSeriessValuesLabel] = useState([]);
   const [Loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getDataSelectSeriessType();
   }, []);
-
-  //FIC: Ejecutamos la API que obtiene todas las etiquetas
-  //y filtramos solo la etiqueta de Tipos Giros de Institutos
-  //para que los ID y Nombres se agreguen como items en el
-  //control <Select> del campo IdTipoGiroOK en la Modal.
-  async function getDataSelectSeriessType() {
-    try {
-      const Labels = await GetAllLabels();
-      console.log("Labels:", Labels); // Registrar la respuesta completa
-      const SeriessTypes = Labels.find(
-        (label) => label.IdEtiquetaOK === "IdTipoGiros"
-      );
-      console.log("SeriessTypes:", SeriessTypes); // Registrar el resultado de la búsqueda
-      if (SeriessTypes) {
-        setSeriessValuesLabel(SeriessTypes.valores);
-      } else {
-        console.error(
-          "No se encontraron etiquetas para Tipos Giros de Institutos"
-        );
-      }
-    } catch (e) {
-      console.error(
-        "Error al obtener Etiquetas para Tipos Giros de Institutos:",
-        e
-      );
-    }
-  }
 
   //FIC: Definition Formik y Yup.
   const formik = useFormik({
@@ -102,7 +78,7 @@ const AddSeriesModal = ({
         //construye todo el JSON de la coleccion de Institutos para
         //que pueda enviarse en el "body" de la API y determinar si
         //la inserción fue o no exitosa.
-        await AddOneSeries(Series);
+        await postSerie(ids, Series);
         //FIC: si no hubo error en el metodo anterior
         //entonces lanzamos la alerta de exito.
         setMensajeExitoAlert("Instituto fue creado y guardado Correctamente");

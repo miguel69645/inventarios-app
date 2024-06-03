@@ -16,7 +16,6 @@ export default function BusinessTab() {
         setCurrentNameTabInBusinessTab={setCurrentTabInPrincipalTab}
       />
       {currentTabInPrincipalTab == "NEGOCIOS" && <BusinessTable />}
-
       {currentTabInPrincipalTab == "ALMACENES" && <StoresTab />}
     </Box>
   );

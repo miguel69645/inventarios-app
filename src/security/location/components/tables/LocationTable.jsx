@@ -63,7 +63,7 @@ const LocationsTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, selectedBusinessId, selectedStoresId, selectedSeriesId]);
+  }, [dispatch, id, selectedBusinessId, selectedStoresId, selectedSeriesId, AddLocationShowModal]);
   const LocationsColumns = useMemo(
     () => [
       {

@@ -11,10 +11,8 @@ import {
   Alert,
   FormControlLabel,
   Checkbox,
-  InputLabel,
   Select,
   MenuItem,
-  FormHelperText,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
@@ -23,44 +21,38 @@ import SaveIcon from "@mui/icons-material/Save";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 //FIC: Helpers
-import { LocationValues } from "../../helpers/LocationValues";
+import { InstituteValues } from "../../helpers/InstituteValues";
 //FIC: Services
-import { postLocation } from "../../services/remote/post/AddOneLocation";
+import { UpdateOneInstitute } from "../../services/remote/put/UpdateOneInstitute";
 import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
-import { useSelector } from "react-redux";
-const AddLocationModal = ({
-  AddLocationShowModal,
-  setAddLocationShowModal,
+import { getOneInstitute } from "../../../institutes/services/remote/get/getOneInstitute";
+const UpdateInstituteModal = ({
+  UpdateInstituteShowModal,
+  setUpdateInstituteShowModal,
+  instituteId,
+  updateInstitutes,
 }) => {
-  const instituto = useSelector((state) => state.institutes.institutesDataArr);
-  const negocio = useSelector((state) => state.business.selectedBusinessId);
-  const almacenes = useSelector((state) => state.stores.selectedStoresId);
-  const series = useSelector((state) => state.series.selectedSeriesId);
-  const ids = [instituto, negocio, almacenes, series];
-
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
-  const [LocationsValuesLabel, setLocationsValuesLabel] = useState([]);
+  const [InstitutesValuesLabel, setInstitutesValuesLabel] = useState([]);
   const [Loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getDataSelectLocationsType();
-  }, []);
-
-  //FIC: Ejecutamos la API que obtiene todas las etiquetas
-  //y filtramos solo la etiqueta de Tipos Giros de Institutos
-  //para que los ID y Nombres se agreguen como items en el
-  //control <Select> del campo IdTipoGiroOK en la Modal.
-  async function getDataSelectLocationsType() {
+    if (instituteId) {
+      getInstituteData();
+    }
+    getDataSelectInstitutesType();
+  }, [instituteId]);
+  async function getDataSelectInstitutesType() {
     try {
       const Labels = await GetAllLabels();
       console.log("Labels:", Labels); // Registrar la respuesta completa
-      const LocationsTypes = Labels.find(
+      const InstitutesTypes = Labels.find(
         (label) => label.IdEtiquetaOK === "IdTipoGiros"
       );
-      console.log("LocationsTypes:", LocationsTypes); // Registrar el resultado de la búsqueda
-      if (LocationsTypes) {
-        setLocationsValuesLabel(LocationsTypes.valores);
+      console.log("InstitutesTypes:", InstitutesTypes); // Registrar el resultado de la búsqueda
+      if (InstitutesTypes) {
+        setInstitutesValuesLabel(InstitutesTypes.valores);
       } else {
         console.error(
           "No se encontraron etiquetas para Tipos Giros de Institutos"
@@ -73,59 +65,57 @@ const AddLocationModal = ({
       );
     }
   }
-
+  async function getInstituteData() {
+    console.log("getInstituteData is called");
+    try {
+      const instituteData = await getOneInstitute(instituteId);
+      console.log("Institute Data:", instituteData);
+      formik.setValues({
+        IdInstitutoOK: instituteData.IdInstitutoOK,
+        IdProdServOK: instituteData.IdProdServOK,
+        IdPresentaOK: instituteData.IdPresentaOK,
+        DescripcionConcatenada: instituteData.DescripcionConcatenada,
+      });
+    } catch (e) {
+      console.error("Error al obtener los datos del instituto:", e);
+    }
+  }
   //FIC: Definition Formik y Yup.
   const formik = useFormik({
     initialValues: {
-      Ubicacion: "",
-      Actual: "",
+      IdInstitutoOK: "",
+      IdProdServOK: "",
+      IdPresentaOK: "",
+      DescripcionConcatenada: "",
     },
     validationSchema: Yup.object({
-      Ubicacion: Yup.string().required("Campo requerido"),
-      Actual: Yup.string().required("Campo requerido"),
+      IdInstitutoOK: Yup.string().required("Campo requerido"),
+      IdProdServOK: Yup.string().required("Campo requerido"),
+      IdPresentaOK: Yup.string().required("Campo requerido"),
+      DescripcionConcatenada: Yup.string().required("Campo requerido"),
     }),
     onSubmit: async (values) => {
-      //FIC: mostramos el Loading.
       setLoading(true);
-
-      //FIC: notificamos en consola que si se llamo y entro al evento.
       console.log(
         "FIC: entro al onSubmit despues de hacer click en boton Guardar"
       );
-      //FIC: reiniciamos los estados de las alertas de exito y error.
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
-        //FIC: Extraer los datos de los campos de
-        //la ventana modal que ya tiene Formik.
-        values.Actual == true ? (values.Actual = "S") : (values.Actual = "N");
-        const Location = LocationValues(values);
-        console.log(Location)
-        //FIC: mandamos a consola los datos extraidos
-        console.log("<<Location>>", Location);
-        console.log(values);
-        //FIC: llamar el metodo que desencadena toda la logica
-        //para ejecutar la API "AddOneLocation" y que previamente
-        //construye todo el JSON de la coleccion de Institutos para
-        //que pueda enviarse en el "body" de la API y determinar si
-        //la inserción fue o no exitosa.
-        await postLocation(ids, Location);
-        //FIC: si no hubo error en el metodo anterior
-        //entonces lanzamos la alerta de exito.
-        setMensajeExitoAlert("Instituto fue creado y guardado Correctamente");
-        //FIC: falta actualizar el estado actual (documentos/data) para que
-        //despues de insertar el nuevo instituto se visualice en la tabla.
-        //fetchDataLocation();
+        const Institute = InstituteValues(values);
+        console.log("<<Institute>>", Institute);
+        await UpdateOneInstitute(instituteId, Institute);
+        setMensajeExitoAlert(
+          "Instituto fue actualizado y guardado Correctamente"
+        );
+        updateInstitutes();
       } catch (e) {
         setMensajeExitoAlert(null);
-        setMensajeErrorAlert("No se pudo crear el Instituto");
+        setMensajeErrorAlert("No se pudo actualizar el Instituto");
       }
-
-      //FIC: ocultamos el Loading.
       setLoading(false);
     },
   });
-  //FIC: props structure for TextField Control.
   const commonTextFieldProps = {
     onChange: formik.handleChange,
     onBlur: formik.handleBlur,
@@ -135,15 +125,15 @@ const AddLocationModal = ({
   };
   return (
     <Dialog
-      open={AddLocationShowModal}
-      onClose={() => setAddLocationShowModal(false)}
+      open={UpdateInstituteShowModal}
+      onClose={() => setUpdateInstituteShowModal(false)}
       fullWidth
     >
       <form onSubmit={formik.handleSubmit}>
         {/* FIC: Aqui va el Titulo de la Modal */}
         <DialogTitle>
           <Typography component="h6">
-            <strong>Agregar Nuevo Instituto</strong>
+            <strong>Actualizar Instituto</strong>
           </Typography>
         </DialogTitle>
         {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
@@ -153,24 +143,38 @@ const AddLocationModal = ({
         >
           {/* FIC: Campos de captura o selección */}
           <TextField
-            id="Ubicacion"
-            label="Ubicacion*"
-            value={formik.values.Ubicacion}
-            /* onChange={formik.handleChange} */
-            {...commonTextFieldProps}
-            error={formik.touched.Ubicacion && Boolean(formik.errors.Ubicacion)}
-            helperText={formik.touched.Ubicacion && formik.errors.Ubicacion}
+            id="IdInstitutoOK"
+            label="IdInstitutoOK*"
+            {...formik.getFieldProps("IdInstitutoOK")}
+            error={
+              formik.touched.IdInstitutoOK &&
+              Boolean(formik.errors.IdInstitutoOK)
+            }
+            helperText={
+              formik.touched.IdInstitutoOK && formik.errors.IdInstitutoOK
+            }
           />
-          <FormControlLabel
-            label="Actual*"
-            control={
-              <Checkbox
-                id="Actual"
-                value={formik.values.Actual}
-                {...commonTextFieldProps}
-                error={formik.touched.Actual && Boolean(formik.errors.Actual)}
-                helperText={formik.touched.Actual && formik.errors.Actual}
-              />
+          <TextField
+            id="IdProdServOK"
+            label="IdProdServOK*"
+            {...formik.getFieldProps("IdProdServOK")}
+            error={
+              formik.touched.IdProdServOK &&
+              Boolean(formik.errors.IdProdServOK)
+            }
+            helperText={
+              formik.touched.IdProdServOK && formik.errors.IdProdServOK
+            }
+          />
+          <TextField
+            id="IdPresentaOK"
+            label="IdPresentaOK*"
+            {...formik.getFieldProps("IdPresentaOK")}
+            error={
+              formik.touched.IdPresentaOK && Boolean(formik.errors.IdPresentaOK)
+            }
+            helperText={
+              formik.touched.IdPresentaOK && formik.errors.IdPresentaOK
             }
           />
         </DialogContent>
@@ -196,7 +200,7 @@ const AddLocationModal = ({
             loadingPosition="start"
             startIcon={<CloseIcon />}
             variant="outlined"
-            onClick={() => setAddLocationShowModal(false)}
+            onClick={() => setUpdateInstituteShowModal(false)}
           >
             <span>CERRAR</span>
           </LoadingButton>
@@ -217,4 +221,4 @@ const AddLocationModal = ({
     </Dialog>
   );
 };
-export default AddLocationModal;
+export default UpdateInstituteModal;

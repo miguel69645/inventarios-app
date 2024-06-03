@@ -44,7 +44,7 @@ const StoresTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, selectedBusinessId]);
+  }, [dispatch, id, selectedBusinessId, AddStoreShowModal]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_STORES(row.original.IdAlmacenOK));
