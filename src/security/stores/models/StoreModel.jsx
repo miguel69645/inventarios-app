@@ -2,8 +2,8 @@ import { getDetailRow } from "../helpers/Utils";
 
 export function StoreModel() {
   let store = {
-    _id: { type: String },
     IdAlmacenOK: { type: String },
+    Descripcion: { type: String },
     Principal: { type: String },
     CantidadActual: { type: String },
     CantidadDisponible: { type: Number },

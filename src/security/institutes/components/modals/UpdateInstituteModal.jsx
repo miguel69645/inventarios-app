@@ -32,6 +32,7 @@ const UpdateInstituteModal = ({
   instituteId,
   updateInstitutes,
 }) => {
+  console.log(instituteId)
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [InstitutesValuesLabel, setInstitutesValuesLabel] = useState([]);
@@ -86,15 +87,14 @@ const UpdateInstituteModal = ({
       IdInstitutoOK: "",
       IdProdServOK: "",
       IdPresentaOK: "",
-      DescripcionConcatenada: "",
     },
     validationSchema: Yup.object({
       IdInstitutoOK: Yup.string().required("Campo requerido"),
       IdProdServOK: Yup.string().required("Campo requerido"),
       IdPresentaOK: Yup.string().required("Campo requerido"),
-      DescripcionConcatenada: Yup.string().required("Campo requerido"),
     }),
     onSubmit: async (values) => {
+      console.log("FIC: entro al onSubmit");
       setLoading(true);
       console.log(
         "FIC: entro al onSubmit despues de hacer click en boton Guardar"

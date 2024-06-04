@@ -1,30 +1,27 @@
 import axios from "axios";
+export async function putBusiness(ids, negocio) {
 
-export function UpdateOneInstitute(instituteId, institute) {
-  console.log("<<EJECUTA>> API <<UpdateOneInstitute>> Requiere:", institute);
+  console.log(`${import.meta.env.VITE_GET_ALL}/${ids[0]}/negocios/${ids[1]}`);
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${import.meta.env.VITE_GET_ALL}/${instituteId}`,
-        institute
+        `${import.meta.env.VITE_GET_ALL}/${ids[0]}/negocios/${ids[1]}`,
+        negocio
       )
       .then((response) => {
-        console.log("<<RESPONSE>> UpdateOneInstitute", institute);
-        const data = response.data;
-        console.log(response.status);
-
-        if (response.status === 200 || response.status === 201) {
-          resolve(data);
+        if (response.status === 200) {
+          console.log("Negocio actualizado con éxito", response.data);
+          resolve(response.data);
         } else {
           console.error(
-            "<<ERROR>> <<NO>> se ejecuto la API <<UpdateOneInstitute>> de forma correcta",
-            data
+            "No se pudo realizar correctamente la petición <<putBusiness - Services>>",
+            response.data
           );
-          reject(data);
+          reject(response.data);
         }
       })
       .catch((error) => {
-        console.error("<<ERROR>> en API <<UpdateOneInstitute>>", error);
+        console.error("Error en <<putBusiness - Business>>", error);
         reject(error);
       });
   });

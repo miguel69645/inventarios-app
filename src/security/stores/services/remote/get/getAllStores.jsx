@@ -11,6 +11,7 @@ export function getAllStores(id, selectedBusinessId) {
           const almacenes = data.map((almacen) => {
             return {
               IdAlmacenOK: almacen.IdAlmacenOK,
+              Descripcion: almacen.Descripcion,
               Principal: almacen.Principal,
               CantidadActual: almacen.CantidadActual,
               CantidadDisponible: almacen.CantidadDisponible,

@@ -19,25 +19,30 @@ import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
 //FIC: Formik - Yup
 import { useFormik } from "formik";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
 //FIC: Helpers
 import { BusinessValues } from "../../helpers/BusinessValues";
 //FIC: Services
-import { UpdateOneBusiness } from "../../services/remote/put/UpdateOneBusiness";
+import { putBusiness } from "../../services/remote/put/UpdateOneBusiness";
 import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
-import { getOneBusiness } from "../../../businesss/services/remote/get/getOneBusiness";
+import { getOneBusiness } from "../../services/remote/get/getOneBusiness";
+
 const UpdateBusinessModal = ({
   UpdateBusinessShowModal,
   setUpdateBusinessShowModal,
   businessId,
+  InstitutoId,
   updateBusinesss,
 }) => {
+  const ids = [InstitutoId, businessId];
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [BusinesssValuesLabel, setBusinesssValuesLabel] = useState([]);
   const [Loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log(InstitutoId, businessId);
     if (businessId) {
       getBusinessData();
     }
@@ -68,13 +73,12 @@ const UpdateBusinessModal = ({
   async function getBusinessData() {
     console.log("getBusinessData is called");
     try {
-      const businessData = await getOneBusiness(businessId);
+      const businessData = await getOneBusiness(InstitutoId, businessId);
       console.log("Business Data:", businessData);
       formik.setValues({
-        IdInstitutoOK: businessData.IdInstitutoOK,
-        IdProdServOK: businessData.IdProdServOK,
-        IdPresentaOK: businessData.IdPresentaOK,
-        DescripcionConcatenada: businessData.DescripcionConcatenada,
+        IdNegocioOK: businessData.IdNegocioOK,
+        descripcionNegocio: businessData.descripcionNegocio,
+        ControlaSerie: businessData.ControlaSerie === "S" ? true : false,
       });
     } catch (e) {
       console.error("Error al obtener los datos del instituto:", e);
@@ -83,16 +87,14 @@ const UpdateBusinessModal = ({
   //FIC: Definition Formik y Yup.
   const formik = useFormik({
     initialValues: {
-      IdInstitutoOK: "",
-      IdProdServOK: "",
-      IdPresentaOK: "",
-      DescripcionConcatenada: "",
+      IdNegocioOK: "",
+      descripcionNegocio: "",
+      ControlaSerie: "",
     },
     validationSchema: Yup.object({
-      IdInstitutoOK: Yup.string().required("Campo requerido"),
-      IdProdServOK: Yup.string().required("Campo requerido"),
-      IdPresentaOK: Yup.string().required("Campo requerido"),
-      DescripcionConcatenada: Yup.string().required("Campo requerido"),
+      IdNegocioOK: Yup.string().required("Campo requerido"),
+      descripcionNegocio: Yup.string().required("Campo requerido"),
+      ControlaSerie: Yup.boolean().required("Campo requerido"),
     }),
     onSubmit: async (values) => {
       setLoading(true);
@@ -104,7 +106,7 @@ const UpdateBusinessModal = ({
       try {
         const Business = BusinessValues(values);
         console.log("<<Business>>", Business);
-        await UpdateOneBusiness(businessId, Business);
+        await putBusiness(ids, Business);
         setMensajeExitoAlert(
           "Instituto fue actualizado y guardado Correctamente"
         );
@@ -143,38 +145,45 @@ const UpdateBusinessModal = ({
         >
           {/* FIC: Campos de captura o selección */}
           <TextField
-            id="IdInstitutoOK"
-            label="IdInstitutoOK*"
-            {...formik.getFieldProps("IdInstitutoOK")}
+            id="IdNegocioOK"
+            label="IdNegocioOK*"
+            {...formik.getFieldProps("IdNegocioOK")}
             error={
-              formik.touched.IdInstitutoOK &&
-              Boolean(formik.errors.IdInstitutoOK)
+              formik.touched.IdNegocioOK &&
+              Boolean(formik.errors.IdNegocioOK)
             }
             helperText={
-              formik.touched.IdInstitutoOK && formik.errors.IdInstitutoOK
+              formik.touched.IdNegocioOK && formik.errors.IdNegocioOK
             }
           />
           <TextField
-            id="IdProdServOK"
-            label="IdProdServOK*"
-            {...formik.getFieldProps("IdProdServOK")}
+            id="descripcionNegocio"
+            label="descripcionNegocio*"
+            {...formik.getFieldProps("descripcionNegocio")}
             error={
-              formik.touched.IdProdServOK &&
-              Boolean(formik.errors.IdProdServOK)
+              formik.touched.descripcionNegocio &&
+              Boolean(formik.errors.descripcionNegocio)
             }
             helperText={
-              formik.touched.IdProdServOK && formik.errors.IdProdServOK
+              formik.touched.descripcionNegocio && formik.errors.descripcionNegocio
             }
           />
-          <TextField
-            id="IdPresentaOK"
-            label="IdPresentaOK*"
-            {...formik.getFieldProps("IdPresentaOK")}
-            error={
-              formik.touched.IdPresentaOK && Boolean(formik.errors.IdPresentaOK)
-            }
-            helperText={
-              formik.touched.IdPresentaOK && formik.errors.IdPresentaOK
+          <FormControlLabel
+            label="ControlaSerie*"
+            control={
+              <Checkbox
+                id="ControlaSerie"
+                value={formik.values.ControlaSerie}
+                {...commonTextFieldProps}
+                checked={formik.values.ControlaSerie}
+                error={
+                  formik.touched.ControlaSerie &&
+                  Boolean(formik.errors.ControlaSerie)
+                }
+                helperText={
+                  formik.touched.ControlaSerie && formik.errors.ControlaSerie
+                }
+              />
             }
           />
         </DialogContent>

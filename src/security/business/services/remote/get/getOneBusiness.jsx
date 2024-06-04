@@ -1,26 +1,32 @@
 import axios from "axios";
 
-export function UpdateOneBusiness(instituteId, businessId, business) {
-  console.log("<<EJECUTA>> API <<UpdateOneBusiness>> Requiere:", business);
+export function getOneBusiness(instituteId, businessId) {
+  console.log(`${import.meta.env.VITE_GET_ALL}/${instituteId}`);
   return new Promise((resolve, reject) => {
     axios
-      .put(
-        `${import.meta.env.VITE_GET_ALL}/${instituteId}/${businessId}`,
-        business
-      )
+      .get(`${import.meta.env.VITE_GET_ALL}/${instituteId}`)
       .then((response) => {
-        console.log("<<RESPONSE>> UpdateOneBusiness", business);
         const data = response.data;
-        console.log(response.status);
+        let business = {};
+        data.negocios.map((negocio) => {
+          if (negocio.IdNegocioOK == businessId) {
+            business = {
+              IdNegocioOK: negocio.IdNegocioOK,
+              descripcionNegocio: negocio.descripcionNegocio,
+              ControlaSerie: negocio.ControlaSerie,
+            };
+          } else return;
+        });
+        console.log(business);
 
         if (response.status === 200 || response.status === 201) {
-          resolve(data);
+          resolve(business);
         } else {
           console.error(
             "<<ERROR>> <<NO>> se ejecuto la API <<UpdateOneBusiness>> de forma correcta",
             data
           );
-          reject(data);
+          reject(business);
         }
       })
       .catch((error) => {

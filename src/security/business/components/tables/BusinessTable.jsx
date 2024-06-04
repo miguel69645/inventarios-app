@@ -16,9 +16,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllBusiness } from "../../services/remote/get/getAllBusiness";
+import { getOneBusiness } from "../../services/remote/get/getOneBusiness";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_ID_BUSINESS } from "../../../redux/slices/businessSlice";
 import AddBusinessModal from "../modals/AddBusinessModal";
+import UpdateBusinessModal from "../modals/UpdateBusinessModal";
 
 const BusinessTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
@@ -36,14 +38,18 @@ const BusinessTable = () => {
     }
   };
 
+  const [selectedInstitutoId, setSelectedInstitutoId] = useState(id);
   const [loadingTable, setLoadingTable] = useState(true);
   const [BusinessData, setBusinessData] = useState([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
   const [AddBusinessShowModal, setAddBusinessShowModal] = useState(false);
+  const [UpdateBusinessShowModal, setUpdateBusinessShowModal] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    setSelectedInstitutoId(id);
+    console.log(selectedInstitutoId)
     async function fetchData() {
       try {
         const AllBusinesssData = await getAllBusiness(id);
@@ -62,7 +68,19 @@ const BusinessTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, AddBusinessShowModal]);
+  }, [dispatch, id, AddBusinessShowModal, UpdateBusinessShowModal]);
+
+  const updateBusiness = async () => {
+    try {
+      const AllBusinessData = await getAllBusiness();
+      setBusinessData(AllBusinessData);
+    } catch (error) {
+      console.error(
+        "Error al actualizar los institutos en updateBusiness:",
+        error
+      );
+    }
+  };
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_BUSINESS(row.original.IdNegocioOK));
@@ -129,7 +147,20 @@ const BusinessTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Editar">
-            <IconButton>
+            <IconButton
+              onClick={async () => {
+                if (selectedBusinessId !== null) {
+                  const BusinessDetails = await getOneBusiness(
+                    selectedInstitutoId,
+                    selectedBusinessId
+                  );
+                  console.log(BusinessDetails);
+                  setUpdateBusinessShowModal(true);
+                } else {
+                  alert("Por favor, seleccione un instituto antes de editarlo");
+                }
+              }}
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -157,6 +188,16 @@ const BusinessTable = () => {
           setAddBusinessShowModal={setAddBusinessShowModal}
           onClose={() => setAddBusinessShowModal(false)}
           addBusinesss={addBusinesss}
+        />
+      </Dialog>
+      <Dialog open={UpdateBusinessShowModal}>
+        <UpdateBusinessModal
+          UpdateBusinessShowModal={UpdateBusinessShowModal}
+          setUpdateBusinessShowModal={setUpdateBusinessShowModal}
+          onClose={() => setUpdateBusinessShowModal(false)}
+          InstitutoId={selectedInstitutoId}
+          businessId={selectedBusinessId}
+          updateBusinesss={updateBusiness}
         />
       </Dialog>
     </Box>

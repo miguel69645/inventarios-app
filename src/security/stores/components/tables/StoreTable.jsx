@@ -3,7 +3,14 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { Box, Stack, Tooltip, IconButton, Dialog } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Tooltip,
+  IconButton,
+  Dialog,
+  Checkbox,
+} from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
@@ -12,6 +19,7 @@ import { getAllStores } from "../../services/remote/get/getAllStores";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_ID_STORES } from "../../../redux/slices/storesSlice";
 import AddStoreModal from "../modals/AddStoreModal";
+import UpdateStoreModal from "../modals/UpdateStoreModal";
 
 const StoresTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
@@ -19,6 +27,7 @@ const StoresTable = () => {
     (state) => state.business.selectedBusinessId
   );
   const [loadingTable, setLoadingTable] = useState(true);
+  const [UpdateStoreShowModal, setUpdateStoreShowModal] = useState(false);
   const [StoresData, setStoresData] = useState([]);
   const [selectedStoreId, setSelectedStoreId] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
@@ -44,7 +53,7 @@ const StoresTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, selectedBusinessId, AddStoreShowModal]);
+  }, [dispatch, id, selectedBusinessId, AddStoreShowModal, UpdateStoreShowModal]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_STORES(row.original.IdAlmacenOK));
@@ -59,9 +68,25 @@ const StoresTable = () => {
         size: 30,
       },
       {
+        accessorKey: "Descripcion",
+        header: "DESCRIPCION",
+        size: 30,
+      },
+      {
         accessorKey: "Principal",
         header: "PRINCIPAL",
         size: 30,
+        Cell: ({ row }) => {
+          return (
+            <Checkbox
+              checked={
+                row.original.Principal &&
+                row.original.Principal.trim().toUpperCase() === "S"
+              }
+              disabled
+            />
+          );
+        },
       },
       {
         accessorKey: "CantidadActual",
@@ -130,7 +155,11 @@ const StoresTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Editar">
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                setUpdateStoreShowModal(true);
+              }}
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -157,6 +186,17 @@ const StoresTable = () => {
           AddStoreShowModal={AddStoreShowModal}
           setAddStoreShowModal={setAddStoreShowModal}
           onClose={() => setAddStoreShowModal(false)}
+        />
+      </Dialog>
+      <Dialog open={UpdateStoreShowModal}>
+        <UpdateStoreModal
+          UpdateStoreShowModal={UpdateStoreShowModal}
+          setUpdateStoreShowModal={setUpdateStoreShowModal}
+          onClose={() => setUpdateStoreShowModal(false)}
+          StoreId={selectedStoreId}
+          instituteId={id}
+          businessId={selectedBusinessId}
+          selectedStoreId={selectedStoreId}
         />
       </Dialog>
     </Box>
