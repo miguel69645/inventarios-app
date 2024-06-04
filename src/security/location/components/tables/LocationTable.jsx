@@ -117,7 +117,7 @@ const LocationsTable = () => {
     }),
     onRowSelectionChange: setRowSelection,
     state: { rowSelection, isLoading: loadingTable },
-    renderTopToolbarCustomActions: () => (
+    renderBottomToolbarCustomActions: () => (
       <Stack direction="row" sx={{ m: 1 }}>
         <Box>
           <Tooltip title="Agregar">

@@ -18,7 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllStatus } from "../../services/remote/get/getAllStatus";
 import { useSelector, useDispatch } from "react-redux";
 import AddStatusModal from "../modals/AddStatusModal";
-import { SET_ID_TIPO_ESTATUS_OK } from "../../../redux/slices/statusSlice"; // Make sure you have this action in your Redux slice
+import { SET_ID_TIPO_ESTATUS_OK } from "../../../redux/slices/statusSlice";
 
 const StatusTable = ({ statusType }) => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
@@ -128,7 +128,7 @@ const StatusTable = ({ statusType }) => {
     }),
     onRowSelectionChange: setRowSelection,
     state: { rowSelection, isLoading: loadingTable },
-    renderTopToolbarCustomActions: () => (
+    renderBottomToolbarCustomActions: () => (
       <Stack direction="row" sx={{ m: 1 }}>
         <Box>
           <Tooltip title="Agregar">
