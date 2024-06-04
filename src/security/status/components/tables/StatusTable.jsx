@@ -16,6 +16,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllStatus } from "../../services/remote/get/getAllStatus";
+import { deleteStatusFisico } from "../../services/remote/delete/DeleteOneStatusFisico";
+import { deleteStatusVenta } from "../../services/remote/delete/DeleteOneStatusVenta";
 import { useSelector, useDispatch } from "react-redux";
 import AddStatusModal from "../modals/AddStatusModal";
 import { SET_ID_TIPO_ESTATUS_OK } from "../../../redux/slices/statusSlice";
@@ -76,7 +78,7 @@ const StatusTable = ({ statusType }) => {
     selectedStoresId,
     selectedSeriesId,
     statusType,
-    AddStatusShowModal
+    AddStatusShowModal,
   ]);
 
   const handleRowClick = (row) => {
@@ -85,6 +87,43 @@ const StatusTable = ({ statusType }) => {
     setRowSelection((prev) => ({
       [row.id]: !prev[row.id],
     }));
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este estado?")) {
+      try {
+        if (statusType === "Fisico") {
+          await deleteStatusFisico(
+            id,
+            selectedBusinessId,
+            selectedStoresId,
+            selectedSeriesId,
+            selectedStatusId
+          );
+        } else if (statusType === "Venta") {
+          await deleteStatusVenta(
+            id,
+            selectedBusinessId,
+            selectedStoresId,
+            selectedSeriesId,
+            selectedStatusId
+          );
+        }
+        // Actualizar los datos de la tabla después de eliminar el estado
+        const AllStatusData = await getAllStatus(
+          id,
+          selectedBusinessId,
+          selectedStoresId,
+          selectedSeriesId
+        );
+        const filteredStatusData = AllStatusData.filter((status) =>
+          status.IdTipoEstatusOK.includes(statusType)
+        );
+        setStatusData(filteredStatusData);
+      } catch (error) {
+        console.error("Error al eliminar el estado:", error);
+      }
+    }
   };
 
   const StatusColumns = useMemo(
@@ -142,7 +181,7 @@ const StatusTable = ({ statusType }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Eliminar">
-            <IconButton>
+            <IconButton onClick={() => handleDelete()}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>

@@ -9,6 +9,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllSeries } from "../../services/remote/get/getAllSeries";
+import { deleteSerie } from "../../services/remote/delete/DeleteOneSerie";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_ID_SERIES } from "../../../redux/slices/seriesSlice";
 import AddSeriesModal from "../modals/AddSeriesModal";
@@ -56,6 +57,28 @@ const SeriessTable = () => {
   const handleRowClick = (row) => {
     dispatch(SET_ID_SERIES(row.original.Serie));
     setSelectedSeriesId(row.original.Serie);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta serie?")) {
+      try {
+        await deleteSerie(
+          id,
+          selectedBusinessId,
+          selectedStoresId,
+          selectedSeriesId
+        );
+        // Actualizar los datos de la tabla después de eliminar la serie
+        const AllSeriesData = await getAllSeries(
+          id,
+          selectedBusinessId,
+          selectedStoresId
+        );
+        setSeriessData(AllSeriesData);
+      } catch (error) {
+        console.error("Error al eliminar la serie:", error);
+      }
+    }
   };
 
   const SeriesColumns = useMemo(
@@ -112,7 +135,7 @@ const SeriessTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Eliminar">
-            <IconButton>
+            <IconButton onClick={() => handleDelete()}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>

@@ -16,6 +16,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllLocations } from "../../services/remote/get/getAllLocation";
+import { deleteLocation } from "../../services/remote/delete/DeleteOneLocation";
 import { useSelector, useDispatch } from "react-redux";
 import AddLocationModal from "../modals/AddLocationModal";
 import { SET_ID_UBICACION } from "../../../redux/slices/locationsSlice";
@@ -64,11 +65,44 @@ const LocationsTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, selectedBusinessId, selectedStoresId, selectedSeriesId, AddLocationShowModal]);
+  }, [
+    dispatch,
+    id,
+    selectedBusinessId,
+    selectedStoresId,
+    selectedSeriesId,
+    AddLocationShowModal,
+  ]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_UBICACION(row.original.Ubicacion));
     setSelectedUbicacionId(row.original.Ubicacion);
+  };
+
+  const handleDelete = async () => {
+    if (
+      window.confirm("¿Estás seguro de que deseas eliminar esta ubicación?")
+    ) {
+      try {
+        await deleteLocation(
+          id,
+          selectedBusinessId,
+          selectedStoresId,
+          selectedSeriesId,
+          selectedUbicacionId
+        );
+        // Actualizar los datos de la tabla después de eliminar la ubicación
+        const AllLocationsData = await getAllLocations(
+          id,
+          selectedBusinessId,
+          selectedStoresId,
+          selectedSeriesId
+        );
+        setLocationsData(AllLocationsData);
+      } catch (error) {
+        console.error("Error al eliminar la ubicación:", error);
+      }
+    }
   };
 
   const LocationsColumns = useMemo(
@@ -131,7 +165,7 @@ const LocationsTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Eliminar">
-            <IconButton>
+            <IconButton onClick={() => handleDelete()}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>

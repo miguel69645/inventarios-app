@@ -10,11 +10,12 @@ import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllInstitutes } from "../../services/remote/get/getAllInstitutes";
 import { getOneInstitute } from "../../services/remote/get/getOneInstitute";
+import { DeleteOneInstitute } from "../../services/remote/delete/DeleteOneInstitute";
 import { getConcatenatedDescription } from "../../services/remote/get/getDescription";
 import { useDispatch } from "react-redux";
 import { SET_ID_INSTITUTES } from "../../../redux/slices/institutesSlice";
 import AddInstituteModal from "../modals/AddInstituteModal";
-import UpdateInstituteModal from "../modals/UpdateInstituteModal";  
+import UpdateInstituteModal from "../modals/UpdateInstituteModal";
 
 const InstitutesTable = () => {
   const [loadingTable, setLoadingTable] = useState(true);
@@ -77,6 +78,21 @@ const InstitutesTable = () => {
         "Error al actualizar los institutos en updateInstitutes:",
         error
       );
+    }
+  };
+
+  const handleDelete = async () => {
+    if (
+      window.confirm("¿Estás seguro de que deseas eliminar este instituto?")
+    ) {
+      try {
+        await DeleteOneInstitute(selectedInstituteId);
+        // Actualizar los datos de la tabla después de eliminar el instituto
+        const AllInstitutesData = await getAllInstitutes();
+        setInstitutesData(AllInstitutesData);
+      } catch (error) {
+        console.error("Error al eliminar el instituto:", error);
+      }
     }
   };
 
@@ -151,7 +167,7 @@ const InstitutesTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Eliminar">
-            <IconButton>
+            <IconButton onClick={() => handleDelete()}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
@@ -191,7 +207,7 @@ const InstitutesTable = () => {
           instituteId={selectedInstituteId}
           updateInstitutes={updateInstitutes}
         />
-        </Dialog>
+      </Dialog>
       {/* Aquí también agregarás los diálogos para editar y ver detalles si los tienes */}
     </Box>
   );

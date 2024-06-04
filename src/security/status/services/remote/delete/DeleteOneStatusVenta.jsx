@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function deleteStatusFisico(
+export async function deleteStatusVenta(
   id,
   idNegocioOk,
   idAlmacenOK,

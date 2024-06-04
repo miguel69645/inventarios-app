@@ -17,6 +17,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllBusiness } from "../../services/remote/get/getAllBusiness";
 import { getOneBusiness } from "../../services/remote/get/getOneBusiness";
+import { deleteBusiness } from "../../services/remote/delete/DeleteOneBusiness";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_ID_BUSINESS } from "../../../redux/slices/businessSlice";
 import AddBusinessModal from "../modals/AddBusinessModal";
@@ -49,7 +50,7 @@ const BusinessTable = () => {
 
   useEffect(() => {
     setSelectedInstitutoId(id);
-    console.log(selectedInstitutoId)
+    console.log(selectedInstitutoId);
     async function fetchData() {
       try {
         const AllBusinesssData = await getAllBusiness(id);
@@ -85,6 +86,19 @@ const BusinessTable = () => {
   const handleRowClick = (row) => {
     dispatch(SET_ID_BUSINESS(row.original.IdNegocioOK));
     setSelectedBusinessId(row.original.IdNegocioOK);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este negocio?")) {
+      try {
+        await deleteBusiness(id, selectedBusinessId);
+        // Actualizar los datos de la tabla después de eliminar el negocio
+        const AllBusinessData = await getAllBusiness(id);
+        setBusinessData(AllBusinessData);
+      } catch (error) {
+        console.error("Error al eliminar el negocio:", error);
+      }
+    }
   };
 
   const BusinesssColumns = useMemo(
@@ -165,7 +179,7 @@ const BusinessTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Eliminar">
-            <IconButton>
+            <IconButton onClick={() => handleDelete()}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>

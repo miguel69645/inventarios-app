@@ -16,6 +16,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllStores } from "../../services/remote/get/getAllStores";
+import { deleteStore } from "../../services/remote/delete/DeleteOneStore";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_ID_STORES } from "../../../redux/slices/storesSlice";
 import AddStoreModal from "../modals/AddStoreModal";
@@ -53,11 +54,30 @@ const StoresTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, selectedBusinessId, AddStoreShowModal, UpdateStoreShowModal]);
+  }, [
+    dispatch,
+    id,
+    selectedBusinessId,
+    AddStoreShowModal,
+    UpdateStoreShowModal,
+  ]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_STORES(row.original.IdAlmacenOK));
     setSelectedStoreId(row.original.IdAlmacenOK);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este almacen?")) {
+      try {
+        await deleteStore(id, selectedBusinessId, selectedStoreId);
+        // Actualizar los datos de la tabla después de eliminar el almacen
+        const AllStoresData = await getAllStores(id, selectedBusinessId);
+        setStoresData(AllStoresData);
+      } catch (error) {
+        console.error("Error al eliminar el almacen:", error);
+      }
+    }
   };
 
   const StoresColumns = useMemo(
@@ -164,7 +184,7 @@ const StoresTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Eliminar">
-            <IconButton>
+            <IconButton onClick={() => handleDelete()}>
               <DeleteIcon />
             </IconButton>
           </Tooltip>
