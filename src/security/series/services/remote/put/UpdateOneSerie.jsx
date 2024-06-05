@@ -1,7 +1,8 @@
 import axios from "axios";
 
-export async function putSerie(id, idNegocioOk, idAlmacenOK, serieId, serie) {
-  console.log(id, idNegocioOk, idAlmacenOK, serieId, serie);
+export async function putSeries(ids, serie) {
+  const [id, idNegocioOk, idAlmacenOK, serieId] = ids;
+  console.log("res",id, idNegocioOk, idAlmacenOK, serieId, serie);
   return new Promise((resolve, reject) => {
     axios
       .put(

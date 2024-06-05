@@ -34,8 +34,8 @@ const UpdateStoreModal = ({
   updateStores,
 }) => {
   const ids = [instituteId, businessId, selectedStoreId];
-  console.log(ids)
-  console.log(instituteId)
+  console.log(ids);
+  console.log(instituteId);
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [Loading, setLoading] = useState(false);
@@ -53,7 +53,7 @@ const UpdateStoreModal = ({
       formik.setValues({
         IdAlmacenOK: instituteData.IdAlmacenOK,
         Descripcion: instituteData.Descripcion,
-        Principal: instituteData.Principal,
+        Principal: instituteData.Principal === "S",
         CantidadActual: instituteData.CantidadActual,
         CantidadDisponible: instituteData.CantidadDisponible,
         CantidadApartada: instituteData.CantidadApartada,
@@ -83,7 +83,7 @@ const UpdateStoreModal = ({
     validationSchema: Yup.object({
       IdAlmacenOK: Yup.string().required("Campo requerido"),
       Descripcion: Yup.string().required("Campo requerido"),
-      Principal: Yup.string().required("Campo requerido"),
+      Principal: Yup.boolean(),
       CantidadActual: Yup.string().required("Campo requerido"),
       CantidadDisponible: Yup.string().required("Campo requerido"),
       CantidadApartada: Yup.string().required("Campo requerido"),
@@ -101,6 +101,7 @@ const UpdateStoreModal = ({
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
+        values.Principal = values.Principal ? "S" : "N";
         const Store = StoreValues(values);
         console.log("<<Store>>", Store);
         await putStore(ids, Store);
@@ -109,7 +110,9 @@ const UpdateStoreModal = ({
         );
       } catch (e) {
         setMensajeExitoAlert(null);
-        setMensajeErrorAlert("No se pudo actualizar el Instituto: " + e.message);
+        setMensajeErrorAlert(
+          "No se pudo actualizar el Instituto: " + e.message
+        );
       }
       setLoading(false);
     },
@@ -131,7 +134,7 @@ const UpdateStoreModal = ({
         {/* FIC: Aqui va el Titulo de la Modal */}
         <DialogTitle>
           <Typography component="h6">
-            <strong>Actualizar Instituto</strong>
+            <strong>Actualizar Almacen</strong>
           </Typography>
         </DialogTitle>
         {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
@@ -141,55 +144,50 @@ const UpdateStoreModal = ({
         >
           {/* FIC: Campos de captura o selección */}
           <TextField
-          disabled
+            disabled
             id="IdAlmacenOK"
             label="IdAlmacenOK*"
             {...formik.getFieldProps("IdAlmacenOK")}
             error={
-              formik.touched.IdAlmacenOK &&
-              Boolean(formik.errors.IdAlmacenOK)
+              formik.touched.IdAlmacenOK && Boolean(formik.errors.IdAlmacenOK)
             }
-            helperText={
-              formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK
-            }
+            helperText={formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK}
           />
           <TextField
-          id="Descripcion"
-          label="Descripcion*"
-          {...formik.getFieldProps("Descripcion")}
-          error={
-            formik.touched.Descripcion &&
-            Boolean(formik.errors.Descripcion)
-          }
-          helperText={
-            formik.touched.Descripcion && formik.errors.Descripcion
-          }
-        />
-        <TextField
-            id="Principal"
-            label="Principal*"
-            {...formik.getFieldProps("Principal")}
+            id="Descripcion"
+            label="Descripcion*"
+            {...formik.getFieldProps("Descripcion")}
             error={
-              formik.touched.Principal &&
-              Boolean(formik.errors.Principal)
+              formik.touched.Descripcion && Boolean(formik.errors.Descripcion)
+            }
+            helperText={formik.touched.Descripcion && formik.errors.Descripcion}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="Principal"
+                {...formik.getFieldProps("Principal")}
+                checked={formik.values.Principal}
+                error={
+                  formik.touched.Principal && Boolean(formik.errors.Principal)
+                }
+              />
+            }
+            label="Principal*"
+          />
+          <TextField
+            id="CantidadActual"
+            label="CantidadActual*"
+            {...formik.getFieldProps("CantidadActual")}
+            error={
+              formik.touched.CantidadActual &&
+              Boolean(formik.errors.CantidadActual)
             }
             helperText={
-              formik.touched.Principal && formik.errors.Principal
+              formik.touched.CantidadActual && formik.errors.CantidadActual
             }
           />
           <TextField
-          id="CantidadActual"
-          label="CantidadActual*"
-          {...formik.getFieldProps("CantidadActual")}
-          error={
-            formik.touched.CantidadActual &&
-            Boolean(formik.errors.CantidadActual)
-          }
-          helperText={
-            formik.touched.CantidadActual && formik.errors.CantidadActual
-          }
-        />
-        <TextField
             id="CantidadDisponible"
             label="CantidadDisponible*"
             {...formik.getFieldProps("CantidadDisponible")}
@@ -198,22 +196,23 @@ const UpdateStoreModal = ({
               Boolean(formik.errors.CantidadDisponible)
             }
             helperText={
-              formik.touched.CantidadDisponible && formik.errors.CantidadDisponible
+              formik.touched.CantidadDisponible &&
+              formik.errors.CantidadDisponible
             }
           />
           <TextField
-          id="CantidadApartada"
-          label="CantidadApartada*"
-          {...formik.getFieldProps("CantidadApartada")}
-          error={
-            formik.touched.CantidadApartada &&
-            Boolean(formik.errors.CantidadApartada)
-          }
-          helperText={
-            formik.touched.CantidadApartada && formik.errors.CantidadApartada
-          }
-        />
-        <TextField
+            id="CantidadApartada"
+            label="CantidadApartada*"
+            {...formik.getFieldProps("CantidadApartada")}
+            error={
+              formik.touched.CantidadApartada &&
+              Boolean(formik.errors.CantidadApartada)
+            }
+            helperText={
+              formik.touched.CantidadApartada && formik.errors.CantidadApartada
+            }
+          />
+          <TextField
             id="CantidadTransito"
             label="CantidadTransito*"
             {...formik.getFieldProps("CantidadTransito")}
@@ -226,41 +225,35 @@ const UpdateStoreModal = ({
             }
           />
           <TextField
-          id="CantidadMerma"
-          label="CantidadMerma*"
-          {...formik.getFieldProps("CantidadMerma")}
-          error={
-            formik.touched.CantidadMerma &&
-            Boolean(formik.errors.CantidadMerma)
-          }
-          helperText={
-            formik.touched.CantidadMerma && formik.errors.CantidadMerma
-          }
-        />
-        <TextField
-          id="StockMaximo"
-          label="StockMaximo*"
-          {...formik.getFieldProps("StockMaximo")}
-          error={
-            formik.touched.StockMaximo &&
-            Boolean(formik.errors.StockMaximo)
-          }
-          helperText={
-            formik.touched.StockMaximo && formik.errors.StockMaximo
-          }
-        />
-        <TextField
-          id="StockMinimo"
-          label="StockMinimo*"
-          {...formik.getFieldProps("StockMinimo")}
-          error={
-            formik.touched.StockMinimo &&
-            Boolean(formik.errors.StockMinimo)
-          }
-          helperText={
-            formik.touched.StockMinimo && formik.errors.StockMinimo
-          }
-        />
+            id="CantidadMerma"
+            label="CantidadMerma*"
+            {...formik.getFieldProps("CantidadMerma")}
+            error={
+              formik.touched.CantidadMerma &&
+              Boolean(formik.errors.CantidadMerma)
+            }
+            helperText={
+              formik.touched.CantidadMerma && formik.errors.CantidadMerma
+            }
+          />
+          <TextField
+            id="StockMaximo"
+            label="StockMaximo*"
+            {...formik.getFieldProps("StockMaximo")}
+            error={
+              formik.touched.StockMaximo && Boolean(formik.errors.StockMaximo)
+            }
+            helperText={formik.touched.StockMaximo && formik.errors.StockMaximo}
+          />
+          <TextField
+            id="StockMinimo"
+            label="StockMinimo*"
+            {...formik.getFieldProps("StockMinimo")}
+            error={
+              formik.touched.StockMinimo && Boolean(formik.errors.StockMinimo)
+            }
+            helperText={formik.touched.StockMinimo && formik.errors.StockMinimo}
+          />
         </DialogContent>
         {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>

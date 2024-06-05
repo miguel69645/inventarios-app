@@ -48,6 +48,7 @@ const UpdateBusinessModal = ({
     }
     getDataSelectBusinesssType();
   }, [businessId]);
+
   async function getDataSelectBusinesssType() {
     try {
       const Labels = await GetAllLabels();
@@ -70,6 +71,7 @@ const UpdateBusinessModal = ({
       );
     }
   }
+
   async function getBusinessData() {
     console.log("getBusinessData is called");
     try {
@@ -78,23 +80,23 @@ const UpdateBusinessModal = ({
       formik.setValues({
         IdNegocioOK: businessData.IdNegocioOK,
         descripcionNegocio: businessData.descripcionNegocio,
-        ControlaSerie: businessData.ControlaSerie === "S" ? true : false,
+        ControlaSerie: businessData.ControlaSerie === "S",
       });
     } catch (e) {
       console.error("Error al obtener los datos del instituto:", e);
     }
   }
-  //FIC: Definition Formik y Yup.
+
   const formik = useFormik({
     initialValues: {
       IdNegocioOK: "",
       descripcionNegocio: "",
-      ControlaSerie: "",
+      ControlaSerie: false,
     },
     validationSchema: Yup.object({
       IdNegocioOK: Yup.string().required("Campo requerido"),
       descripcionNegocio: Yup.string().required("Campo requerido"),
-      ControlaSerie: Yup.boolean().required("Campo requerido"),
+      ControlaSerie: Yup.boolean(),
     }),
     onSubmit: async (values) => {
       setLoading(true);
@@ -104,6 +106,7 @@ const UpdateBusinessModal = ({
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
+        values.ControlaSerie = values.ControlaSerie ? "S" : "N";
         const Business = BusinessValues(values);
         console.log("<<Business>>", Business);
         await putBusiness(ids, Business);
@@ -118,6 +121,7 @@ const UpdateBusinessModal = ({
       setLoading(false);
     },
   });
+
   const commonTextFieldProps = {
     onChange: formik.handleChange,
     onBlur: formik.handleBlur,
@@ -125,6 +129,7 @@ const UpdateBusinessModal = ({
     margin: "dense",
     disabled: !!mensajeExitoAlert,
   };
+
   return (
     <Dialog
       open={UpdateBusinessShowModal}
@@ -132,29 +137,23 @@ const UpdateBusinessModal = ({
       fullWidth
     >
       <form onSubmit={formik.handleSubmit}>
-        {/* FIC: Aqui va el Titulo de la Modal */}
         <DialogTitle>
           <Typography component="h6">
-            <strong>Actualizar Instituto</strong>
+            <strong>Actualizar Negocio</strong>
           </Typography>
         </DialogTitle>
-        {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
         <DialogContent
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          {/* FIC: Campos de captura o selección */}
           <TextField
             id="IdNegocioOK"
             label="IdNegocioOK*"
             {...formik.getFieldProps("IdNegocioOK")}
             error={
-              formik.touched.IdNegocioOK &&
-              Boolean(formik.errors.IdNegocioOK)
+              formik.touched.IdNegocioOK && Boolean(formik.errors.IdNegocioOK)
             }
-            helperText={
-              formik.touched.IdNegocioOK && formik.errors.IdNegocioOK
-            }
+            helperText={formik.touched.IdNegocioOK && formik.errors.IdNegocioOK}
           />
           <TextField
             id="descripcionNegocio"
@@ -165,7 +164,8 @@ const UpdateBusinessModal = ({
               Boolean(formik.errors.descripcionNegocio)
             }
             helperText={
-              formik.touched.descripcionNegocio && formik.errors.descripcionNegocio
+              formik.touched.descripcionNegocio &&
+              formik.errors.descripcionNegocio
             }
           />
           <FormControlLabel
@@ -173,21 +173,15 @@ const UpdateBusinessModal = ({
             control={
               <Checkbox
                 id="ControlaSerie"
-                value={formik.values.ControlaSerie}
-                {...commonTextFieldProps}
+                name="ControlaSerie"
                 checked={formik.values.ControlaSerie}
-                error={
-                  formik.touched.ControlaSerie &&
-                  Boolean(formik.errors.ControlaSerie)
-                }
-                helperText={
-                  formik.touched.ControlaSerie && formik.errors.ControlaSerie
-                }
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={!!mensajeExitoAlert}
               />
             }
           />
         </DialogContent>
-        {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
           <Box m="auto">
             {console.log("mensajeExitoAlert", mensajeExitoAlert)}
@@ -203,7 +197,6 @@ const UpdateBusinessModal = ({
               </Alert>
             )}
           </Box>
-          {/* FIC: Boton de Cerrar. */}
           <LoadingButton
             color="secondary"
             loadingPosition="start"
@@ -213,7 +206,6 @@ const UpdateBusinessModal = ({
           >
             <span>CERRAR</span>
           </LoadingButton>
-          {/* FIC: Boton de Guardar. */}
           <LoadingButton
             color="primary"
             loadingPosition="start"

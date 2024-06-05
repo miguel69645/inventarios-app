@@ -82,7 +82,7 @@ const AddLocationModal = ({
     },
     validationSchema: Yup.object({
       Ubicacion: Yup.string().required("Campo requerido"),
-      Actual: Yup.string().required("Campo requerido"),
+      Actual: Yup.string(),
     }),
     onSubmit: async (values) => {
       //FIC: mostramos el Loading.
@@ -98,7 +98,7 @@ const AddLocationModal = ({
       try {
         //FIC: Extraer los datos de los campos de
         //la ventana modal que ya tiene Formik.
-        values.Actual == true ? (values.Actual = "S") : (values.Actual = "N");
+        values.Actual ? (values.Actual = "S") : (values.Actual = "N");
         const Location = LocationValues(values);
         console.log(Location)
         //FIC: mandamos a consola los datos extraidos

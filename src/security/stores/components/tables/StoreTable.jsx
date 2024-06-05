@@ -35,6 +35,7 @@ const StoresTable = () => {
   const [AddStoreShowModal, setAddStoreShowModal] = useState(false);
   const dispatch = useDispatch();
 
+  // useEffect para manejar la carga inicial de los datos
   useEffect(() => {
     async function fetchData() {
       try {
@@ -48,19 +49,32 @@ const StoresTable = () => {
         }
       } catch (error) {
         console.error(
-          "Error al obtener los institutos en useEffect de StoresTable:",
+          "Error al obtener los almacenes en useEffect de StoresTable:",
           error
         );
       }
     }
     fetchData();
-  }, [
-    dispatch,
-    id,
-    selectedBusinessId,
-    AddStoreShowModal,
-    UpdateStoreShowModal,
-  ]);
+  }, [dispatch, id, selectedBusinessId]);
+
+  // useEffect para manejar la actualización de los datos cuando se cierra el modal
+  useEffect(() => {
+    if (!UpdateStoreShowModal && !AddStoreShowModal) {
+      updateStores();
+    }
+  }, [UpdateStoreShowModal, AddStoreShowModal]);
+
+  const updateStores = async () => {
+    try {
+      const AllStoresData = await getAllStores(id, selectedBusinessId);
+      setStoresData(AllStoresData);
+    } catch (error) {
+      console.error(
+        "Error al actualizar los almacenes en updateStores:",
+        error
+      );
+    }
+  };
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_STORES(row.original.IdAlmacenOK));
@@ -217,6 +231,7 @@ const StoresTable = () => {
           instituteId={id}
           businessId={selectedBusinessId}
           selectedStoreId={selectedStoreId}
+          updateStores={updateStores}
         />
       </Dialog>
     </Box>

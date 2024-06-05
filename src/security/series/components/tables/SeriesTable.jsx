@@ -13,6 +13,7 @@ import { deleteSerie } from "../../services/remote/delete/DeleteOneSerie";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_ID_SERIES } from "../../../redux/slices/seriesSlice";
 import AddSeriesModal from "../modals/AddSeriesModal";
+import UpdateSeriesModal from "../modals/UpdateSeriesModal";
 
 const SeriessTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
@@ -27,10 +28,20 @@ const SeriessTable = () => {
   const [selectedSeriesId, setSelectedSeriesId] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
   const [AddSeriesShowModal, setAddSeriesShowModal] = useState(false);
+  const [UpdateSeriesShowModal, setUpdateSeriesShowModal] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function fetchData() {
+      if (!id || !selectedBusinessId || !selectedStoresId) {
+        console.error(
+          "Error: id, selectedBusinessId, or selectedStoresId is not valid."
+        );
+        return;
+      }
+
+      setLoadingTable(true);
+
       try {
         const AllSeriessData = await getAllSeries(
           id,
@@ -49,10 +60,48 @@ const SeriessTable = () => {
           "Error al obtener los institutos en useEffect de SeriessTable:",
           error
         );
+        setLoadingTable(false);
       }
     }
+
     fetchData();
-  }, [dispatch, id, selectedBusinessId, selectedStoresId, AddSeriesShowModal]);
+  }, [dispatch, id, selectedBusinessId, selectedStoresId]);
+
+  const fetchSeriesData = async () => {
+    if (!id || !selectedBusinessId || !selectedStoresId) {
+      console.error(
+        "Error: id, selectedBusinessId, or selectedStoresId is not valid."
+      );
+      return;
+    }
+
+    setLoadingTable(true);
+
+    try {
+      const AllSeriessData = await getAllSeries(
+        id,
+        selectedBusinessId,
+        selectedStoresId
+      );
+      setSeriessData(AllSeriessData);
+      setLoadingTable(false);
+      if (AllSeriessData.length > 0) {
+        dispatch(SET_ID_SERIES(AllSeriessData[0].Serie));
+        setSelectedSeriesId(AllSeriessData[0].Serie);
+        setRowSelection({ [AllSeriessData[0].Serie]: true });
+      }
+    } catch (error) {
+      console.error(
+        "Error al obtener los institutos en useEffect de SeriessTable:",
+        error
+      );
+      setLoadingTable(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSeriesData();
+  }, [dispatch, id, selectedBusinessId, selectedStoresId]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_SERIES(row.original.Serie));
@@ -130,7 +179,12 @@ const SeriessTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Editar">
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                setUpdateSeriesShowModal(true);
+                console.log("UpdateSeriesShowModal:", UpdateSeriesShowModal);
+              }}
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -159,6 +213,18 @@ const SeriessTable = () => {
           AddSeriesShowModal={AddSeriesShowModal}
           setAddSeriesShowModal={setAddSeriesShowModal}
           onClose={() => setAddSeriesShowModal(false)}
+        />
+      </Dialog>
+      <Dialog open={UpdateSeriesShowModal}>
+        <UpdateSeriesModal
+          UpdateSeriesShowModal={UpdateSeriesShowModal}
+          setUpdateSeriesShowModal={setUpdateSeriesShowModal}
+          onClose={() => setUpdateSeriesShowModal(false)}
+          instituteId={id}
+          businessId={selectedBusinessId}
+          storeId={selectedStoresId}
+          selectedSeriesId={selectedSeriesId}
+          updateSeries={fetchSeriesData}
         />
       </Dialog>
     </Box>

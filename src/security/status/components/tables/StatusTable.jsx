@@ -20,6 +20,7 @@ import { deleteStatusFisico } from "../../services/remote/delete/DeleteOneStatus
 import { deleteStatusVenta } from "../../services/remote/delete/DeleteOneStatusVenta";
 import { useSelector, useDispatch } from "react-redux";
 import AddStatusModal from "../modals/AddStatusModal";
+import UpdateStatusModal from "../modals/UpdateStatusModal";
 import { SET_ID_TIPO_ESTATUS_OK } from "../../../redux/slices/statusSlice";
 
 const StatusTable = ({ statusType }) => {
@@ -39,6 +40,7 @@ const StatusTable = ({ statusType }) => {
   const [selectedStatusId, setSelectedStatusId] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
   const [AddStatusShowModal, setAddStatusShowModal] = useState(false);
+  const [UpdateStatusShowModal, setUpdateStatusShowModal] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -57,11 +59,17 @@ const StatusTable = ({ statusType }) => {
         setStatusData(filteredStatusData);
         setLoadingTable(false);
         if (filteredStatusData.length > 0) {
-          dispatch(
-            SET_ID_TIPO_ESTATUS_OK(filteredStatusData[0].IdTipoEstatusOK)
-          );
-          setSelectedStatusId(filteredStatusData[0].IdTipoEstatusOK);
-          setRowSelection({ [filteredStatusData[0].IdTipoEstatusOK]: true });
+          // Comprueba si ya se ha seleccionado un estado
+          if (!selectedStatusId) {
+            dispatch(
+              SET_ID_TIPO_ESTATUS_OK(filteredStatusData[0].IdTipoEstatusOK)
+            );
+            setSelectedStatusId(filteredStatusData[0].IdTipoEstatusOK);
+            setRowSelection({ [filteredStatusData[0].IdTipoEstatusOK]: true });
+          } else {
+            // Si ya se ha seleccionado un estado, mantén esa selección
+            setRowSelection({ [selectedStatusId]: true });
+          }
         }
       } catch (error) {
         console.error(
@@ -79,6 +87,8 @@ const StatusTable = ({ statusType }) => {
     selectedSeriesId,
     statusType,
     AddStatusShowModal,
+    UpdateStatusShowModal,
+    selectedStatusId, // Agrega selectedStatusId a las dependencias del useEffect
   ]);
 
   const handleRowClick = (row) => {
@@ -176,7 +186,7 @@ const StatusTable = ({ statusType }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Editar">
-            <IconButton>
+            <IconButton onClick={() => setUpdateStatusShowModal(true)}>
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -206,6 +216,15 @@ const StatusTable = ({ statusType }) => {
           setAddStatusShowModal={setAddStatusShowModal}
           onClose={() => setAddStatusShowModal(false)}
           statusType={statusType}
+        />
+      </Dialog>
+      <Dialog open={UpdateStatusShowModal}>
+        <UpdateStatusModal
+          open={UpdateStatusShowModal}
+          onClose={() => setUpdateStatusShowModal(false)}
+          statusType={statusType}
+          selectedStatusId={selectedStatusId}
+          // refreshData={() => setUpdateStatusShowModal(false)}
         />
       </Dialog>
     </Box>

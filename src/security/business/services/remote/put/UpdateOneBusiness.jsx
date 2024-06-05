@@ -1,7 +1,6 @@
 import axios from "axios";
 export async function putBusiness(ids, negocio) {
-
-  console.log(`${import.meta.env.VITE_GET_ALL}/${ids[0]}/negocios/${ids[1]}`);
+  console.log("res",`${import.meta.env.VITE_GET_ALL}/${ids[0]}/negocios/${ids[1]}`);
   return new Promise((resolve, reject) => {
     axios
       .put(
@@ -10,6 +9,7 @@ export async function putBusiness(ids, negocio) {
       )
       .then((response) => {
         if (response.status === 200) {
+          console.log("Negocio actualizado con éxito", response);
           console.log("Negocio actualizado con éxito", response.data);
           resolve(response.data);
         } else {

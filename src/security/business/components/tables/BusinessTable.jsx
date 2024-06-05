@@ -48,6 +48,7 @@ const BusinessTable = () => {
   const [UpdateBusinessShowModal, setUpdateBusinessShowModal] = useState(false);
   const dispatch = useDispatch();
 
+  // useEffect para manejar la carga inicial de los datos
   useEffect(() => {
     setSelectedInstitutoId(id);
     console.log(selectedInstitutoId);
@@ -69,11 +70,18 @@ const BusinessTable = () => {
       }
     }
     fetchData();
-  }, [dispatch, id, AddBusinessShowModal, UpdateBusinessShowModal]);
+  }, [dispatch, id]);
 
-  const updateBusiness = async () => {
+  // useEffect para manejar la actualización de los datos cuando se cierra el modal
+  useEffect(() => {
+    if (!UpdateBusinessShowModal) {
+      updateBusiness(selectedInstitutoId);
+    }
+  }, [UpdateBusinessShowModal, selectedInstitutoId]);
+
+  const updateBusiness = async (id) => {
     try {
-      const AllBusinessData = await getAllBusiness();
+      const AllBusinessData = await getAllBusiness(id);
       setBusinessData(AllBusinessData);
     } catch (error) {
       console.error(

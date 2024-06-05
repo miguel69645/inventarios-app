@@ -29,20 +29,18 @@ import { AddOneInstitute } from "../../../institutes/services/remote/post/AddOne
 const AddInstituteModal = ({
   AddInstituteShowModal,
   setAddInstituteShowModal,
+  reloadInstitutesData,
 }) => {
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [Loading, setLoading] = useState(false);
 
-  useEffect(() => {
-
-  }, []);
+  useEffect(() => {}, []);
 
   //FIC: Ejecutamos la API que obtiene todas las etiquetas
   //y filtramos solo la etiqueta de Tipos Giros de Institutos
   //para que los ID y Nombres se agreguen como items en el
   //control <Select> del campo IdTipoGiroOK en la Modal.
-
 
   //FIC: Definition Formik y Yup.
   const formik = useFormik({
@@ -60,7 +58,7 @@ const AddInstituteModal = ({
     onSubmit: async (values) => {
       //FIC: mostramos el Loading.
       setLoading(true);
-      console.log("Si entra en el submit")
+      console.log("Si entra en el submit");
 
       //FIC: notificamos en consola que si se llamo y entro al evento.
       console.log(
@@ -79,6 +77,7 @@ const AddInstituteModal = ({
         //FIC: falta actualizar el estado actual (documentos/data) para que
         //despues de insertar el nuevo instituto se visualice en la tabla.
         //fetchDataInstitute();
+        reloadInstitutesData();
       } catch (e) {
         setMensajeExitoAlert(null);
         setMensajeErrorAlert("No se pudo crear el Instituto");
@@ -135,8 +134,7 @@ const AddInstituteModal = ({
             value={formik.values.IdProdServOK}
             {...commonTextFieldProps}
             error={
-              formik.touched.IdProdServOK &&
-              Boolean(formik.errors.IdProdServOK)
+              formik.touched.IdProdServOK && Boolean(formik.errors.IdProdServOK)
             }
             helperText={
               formik.touched.IdProdServOK && formik.errors.IdProdServOK

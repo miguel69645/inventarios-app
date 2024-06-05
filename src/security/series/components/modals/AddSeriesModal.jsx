@@ -112,7 +112,7 @@ const AddSeriesModal = ({
         {/* FIC: Aqui va el Titulo de la Modal */}
         <DialogTitle>
           <Typography component="h6">
-            <strong>Agregar Nuevo Instituto</strong>
+            <strong>Agregar Nueva Serie</strong>
           </Typography>
         </DialogTitle>
         {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}

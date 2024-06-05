@@ -69,6 +69,11 @@ const InstitutesTable = () => {
     console.log(row.original._id);
   };
 
+  const reloadInstitutesData = async () => {
+    const data = await getAllInstitutes();
+    setInstitutesData(data);
+  };
+
   const updateInstitutes = async () => {
     try {
       const AllInstitutesData = await getAllInstitutes();
@@ -196,6 +201,7 @@ const InstitutesTable = () => {
         <AddInstituteModal
           AddInstituteShowModal={addInstituteShowModal}
           setAddInstituteShowModal={setAddInstituteShowModal}
+          reloadInstitutesData={reloadInstitutesData}
           onClose={() => setAddInstituteShowModal(false)}
         />
       </Dialog>

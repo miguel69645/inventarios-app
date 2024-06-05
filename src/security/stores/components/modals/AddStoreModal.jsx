@@ -76,6 +76,7 @@ const AddStoreModal = ({
   const formik = useFormik({
     initialValues: {
       IdAlmacenOK: "",
+      Descripcion: "",
       Principal: "",
       CantidadActual: "",
       CantidadDisponible: "",
@@ -87,7 +88,8 @@ const AddStoreModal = ({
     },
     validationSchema: Yup.object({
       IdAlmacenOK: Yup.string().required("Campo requerido"),
-      Principal: Yup.boolean().required("Campo requerido"),
+      Descripcion: Yup.string().required("Campo requerido"),
+      Principal: Yup.boolean(),
       CantidadActual: Yup.string().required("Campo requerido"),
       CantidadDisponible: Yup.string().required("Campo requerido"),
       CantidadApartada: Yup.string().required("Campo requerido"),
@@ -111,8 +113,11 @@ const AddStoreModal = ({
       try {
         //FIC: Extraer los datos de los campos de
         //la ventana modal que ya tiene Formik.
-        values.Principal = values.Principal === "true" ? "S" : "N";
-        const Store = StoreValues(values);
+        const modifiedValues = {
+          ...values,
+          Principal: values.Principal ? "S" : "N",
+        };
+        const Store = StoreValues(modifiedValues);
         //FIC: mandamos a consola los datos extraidos
         console.log("<<Store>>", Store);
         //FIC: llamar el metodo que desencadena toda la logica
@@ -154,7 +159,7 @@ const AddStoreModal = ({
         {/* FIC: Aqui va el Titulo de la Modal */}
         <DialogTitle>
           <Typography component="h6">
-            <strong>Agregar Nuevo Instituto</strong>
+            <strong>Agregar Nuevo Almacen</strong>
           </Typography>
         </DialogTitle>
         {/* FIC: Aqui va un tipo de control por cada Propiedad de Almacenes */}
@@ -175,6 +180,20 @@ const AddStoreModal = ({
             }
             helperText={
               formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK
+            }
+          />
+          <TextField
+            id="Descripcion"
+            label="Descripcion*"
+            value={formik.values.Descripcion}
+            /* onChange={formik.handleChange} */
+            {...commonTextFieldProps}
+            error={
+              formik.touched.Descripcion &&
+              Boolean(formik.errors.Descripcion)
+            }
+            helperText={
+              formik.touched.Descripcion && formik.errors.Descripcion
             }
           />
           <FormControlLabel
