@@ -48,6 +48,7 @@ const UpdateLocationModal = ({
     validationSchema: Yup.object({
       Ubicacion: Yup.string().required("Campo requerido"),
       Actual: Yup.string(),
+      
     }),
     onSubmit: async (values) => {
       setLoading(true);
@@ -72,7 +73,7 @@ const UpdateLocationModal = ({
       setStatusOptions(locationData);
       formik.setValues({
         Ubicacion: locationData.Ubicacion,
-        Actual: locationData.Actual,
+        Actual: locationData.Actual === "S" ? true : false,
       });
     } catch (error) {
       console.error(error);
