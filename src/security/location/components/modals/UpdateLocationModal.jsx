@@ -70,7 +70,7 @@ const UpdateLocationModal = ({
   const formik = useFormik({
     initialValues: {
       Ubicacion: "",
-      Actual: "",
+      Actual: false,
     },
     validationSchema: Yup.object({
       Ubicacion: Yup.string().required("Campo requerido"),

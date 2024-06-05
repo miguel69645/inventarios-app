@@ -76,12 +76,12 @@ const LocationsTable = () => {
     selectedStoresId,
     selectedSeriesId,
     AddLocationShowModal,
-    UpdateLocationShowModal,
   ]);
 
   const handleRowClick = (row) => {
     dispatch(SET_ID_UBICACION(row.original.Ubicacion));
     setSelectedUbicacionId(row.original.Ubicacion);
+    console.log(row.original.Ubicacion);
   };
 
   const handleDelete = async () => {
