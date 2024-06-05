@@ -11,8 +11,7 @@ import {
   Alert,
   FormControlLabel,
   Checkbox,
-  Select,
-  MenuItem,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
@@ -26,6 +25,7 @@ import { BusinessValues } from "../../helpers/BusinessValues";
 //FIC: Services
 import { putBusiness } from "../../services/remote/put/UpdateOneBusiness";
 import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
+import { getAllBusiness1 } from "../../services/remote/get/getBusiness";
 import { getOneBusiness } from "../../services/remote/get/getOneBusiness";
 
 const UpdateBusinessModal = ({
@@ -41,23 +41,34 @@ const UpdateBusinessModal = ({
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [BusinesssValuesLabel, setBusinesssValuesLabel] = useState([]);
   const [Loading, setLoading] = useState(false);
+  const [businessOptions, setBusinessOptions] = useState([]);
 
   useEffect(() => {
-    console.log(InstitutoId, businessId);
     if (businessId) {
       getBusinessData();
     }
     getDataSelectBusinesssType();
   }, [businessId]);
 
+  useEffect(() => {
+    async function fetchBusiness() {
+      try {
+        const business = await getAllBusiness1();
+        setBusinessOptions(business);
+      } catch (error) {
+        console.error("Error fetching business:", error);
+      }
+    }
+
+    fetchBusiness();
+  }, []);
+
   async function getDataSelectBusinesssType() {
     try {
       const Labels = await GetAllLabels();
-      console.log("Labels:", Labels); // Registrar la respuesta completa
       const BusinesssTypes = Labels.find(
         (label) => label.IdEtiquetaOK === "IdTipoGiros"
       );
-      console.log("BusinesssTypes:", BusinesssTypes); // Registrar el resultado de la búsqueda
       if (BusinesssTypes) {
         setBusinesssValuesLabel(BusinesssTypes.valores);
       } else {
@@ -74,10 +85,8 @@ const UpdateBusinessModal = ({
   }
 
   async function getBusinessData() {
-    console.log("getBusinessData is called");
     try {
       const businessData = await getOneBusiness(InstitutoId, businessId);
-      console.log("Business Data:", businessData);
       formik.setValues({
         IdNegocioOK: businessData.IdNegocioOK,
         descripcionNegocio: businessData.descripcionNegocio,
@@ -101,15 +110,11 @@ const UpdateBusinessModal = ({
     }),
     onSubmit: async (values) => {
       setLoading(true);
-      console.log(
-        "FIC: entro al onSubmit despues de hacer click en boton Guardar"
-      );
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
         values.ControlaSerie = values.ControlaSerie ? "S" : "N";
         const Business = BusinessValues(values);
-        console.log("<<Business>>", Business);
         await putBusiness(ids, Business);
         setMensajeExitoAlert(
           "Instituto fue actualizado y guardado Correctamente"
@@ -147,15 +152,35 @@ const UpdateBusinessModal = ({
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          <TextField
+          <Autocomplete
             id="IdNegocioOK"
-            label="IdNegocioOK*"
-            {...formik.getFieldProps("IdNegocioOK")}
-            error={
-              formik.touched.IdNegocioOK && Boolean(formik.errors.IdNegocioOK)
+            options={businessOptions}
+            getOptionLabel={(option) => option.IdNegocioOK}
+            onChange={(event, newValue) => {
+              formik.setFieldValue(
+                "IdNegocioOK",
+                newValue ? newValue.IdNegocioOK : ""
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="IdNegocioOK*"
+                error={
+                  formik.touched.IdNegocioOK &&
+                  Boolean(formik.errors.IdNegocioOK)
+                }
+                helperText={
+                  formik.touched.IdNegocioOK && formik.errors.IdNegocioOK
+                }
+                disabled={isDetailView}
+              />
+            )}
+            value={
+              businessOptions.find(
+                (option) => option.IdNegocioOK === formik.values.IdNegocioOK
+              ) || null
             }
-            helperText={formik.touched.IdNegocioOK && formik.errors.IdNegocioOK}
-            disabled={isDetailView}
           />
           <TextField
             id="descripcionNegocio"
@@ -188,8 +213,6 @@ const UpdateBusinessModal = ({
         </DialogContent>
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
           <Box m="auto">
-            {console.log("mensajeExitoAlert", mensajeExitoAlert)}
-            {console.log("mensajeErrorAlert", mensajeErrorAlert)}
             {mensajeErrorAlert && (
               <Alert severity="error">
                 <b>¡ERROR!</b> ─ {mensajeErrorAlert}
@@ -228,4 +251,5 @@ const UpdateBusinessModal = ({
     </Dialog>
   );
 };
+
 export default UpdateBusinessModal;

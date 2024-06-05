@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-//FIC: Material
 import {
   Dialog,
   DialogContent,
@@ -9,23 +8,19 @@ import {
   DialogActions,
   Box,
   Alert,
-  FormControlLabel,
-  Checkbox,
-  Select,
-  MenuItem,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
-//FIC: Formik - Yup
 import { useFormik } from "formik";
 import * as Yup from "yup";
-//FIC: Helpers
 import { InstituteValues } from "../../helpers/InstituteValues";
-//FIC: Services
 import { UpdateOneInstitute } from "../../services/remote/put/UpdateOneInstitute";
-import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
+import { getAllInstitutes1 } from "../../services/remote/get/getInstitutes";
+import { getConcatenatedDescription } from "../../services/remote/get/getDescription";
 import { getOneInstitute } from "../../../institutes/services/remote/get/getOneInstitute";
+
 const UpdateInstituteModal = ({
   UpdateInstituteShowModal,
   setUpdateInstituteShowModal,
@@ -33,45 +28,51 @@ const UpdateInstituteModal = ({
   updateInstitutes,
   isDetailView,
 }) => {
-  console.log(instituteId);
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
-  const [InstitutesValuesLabel, setInstitutesValuesLabel] = useState([]);
   const [Loading, setLoading] = useState(false);
+  const [institutesOptions, setInstitutesOptions] = useState([]);
+  const [prodServOptions, setProdServOptions] = useState([]);
+  const [presentaOptions, setPresentaOptions] = useState([]);
+
+  useEffect(() => {
+    async function fetchInstitutes() {
+      try {
+        const institutes = await getAllInstitutes1();
+        setInstitutesOptions(institutes);
+      } catch (error) {
+        console.error("Error fetching institutes:", error);
+      }
+    }
+
+    async function fetchProdServOptions() {
+      try {
+        const options = await getConcatenatedDescription();
+        setProdServOptions(options);
+      } catch (error) {
+        console.error("Error fetching product services:", error);
+      }
+    }
+
+    fetchInstitutes();
+    fetchProdServOptions();
+  }, []);
 
   useEffect(() => {
     if (instituteId) {
       getInstituteData();
     }
-    getDataSelectInstitutesType();
-  }, [instituteId]);
-  async function getDataSelectInstitutesType() {
-    try {
-      const Labels = await GetAllLabels();
-      console.log("Labels:", Labels); // Registrar la respuesta completa
-      const InstitutesTypes = Labels.find(
-        (label) => label.IdEtiquetaOK === "IdTipoGiros"
-      );
-      console.log("InstitutesTypes:", InstitutesTypes); // Registrar el resultado de la búsqueda
-      if (InstitutesTypes) {
-        setInstitutesValuesLabel(InstitutesTypes.valores);
-      } else {
-        console.error(
-          "No se encontraron etiquetas para Tipos Giros de Institutos"
-        );
-      }
-    } catch (e) {
-      console.error(
-        "Error al obtener Etiquetas para Tipos Giros de Institutos:",
-        e
-      );
-    }
-  }
+  }, [instituteId, prodServOptions]);
+
   async function getInstituteData() {
-    console.log("getInstituteData is called");
     try {
       const instituteData = await getOneInstitute(instituteId);
-      console.log("Institute Data:", instituteData);
+      const selectedProdServ = prodServOptions.find(
+        (option) => option.IdProdServOK === instituteData.IdProdServOK
+      );
+      setPresentaOptions(
+        selectedProdServ ? selectedProdServ.presentaciones : []
+      );
       formik.setValues({
         IdInstitutoOK: instituteData.IdInstitutoOK,
         IdProdServOK: instituteData.IdProdServOK,
@@ -82,7 +83,7 @@ const UpdateInstituteModal = ({
       console.error("Error al obtener los datos del instituto:", e);
     }
   }
-  //FIC: Definition Formik y Yup.
+
   const formik = useFormik({
     initialValues: {
       IdInstitutoOK: "",
@@ -95,16 +96,12 @@ const UpdateInstituteModal = ({
       IdPresentaOK: Yup.string().required("Campo requerido"),
     }),
     onSubmit: async (values) => {
-      console.log("FIC: entro al onSubmit");
       setLoading(true);
-      console.log(
-        "FIC: entro al onSubmit despues de hacer click en boton Guardar"
-      );
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
+
       try {
         const Institute = InstituteValues(values);
-        console.log("<<Institute>>", Institute);
         await UpdateOneInstitute(instituteId, Institute);
         setMensajeExitoAlert(
           "Instituto fue actualizado y guardado Correctamente"
@@ -114,16 +111,25 @@ const UpdateInstituteModal = ({
         setMensajeExitoAlert(null);
         setMensajeErrorAlert("No se pudo actualizar el Instituto");
       }
+
       setLoading(false);
     },
   });
+
+  const handleProdServChange = (event, value) => {
+    formik.setFieldValue("IdProdServOK", value?.IdProdServOK || "");
+    setPresentaOptions(value ? value.presentaciones : []);
+    formik.setFieldValue("IdPresentaOK", "");
+  };
+
   const commonTextFieldProps = {
     onChange: formik.handleChange,
     onBlur: formik.handleBlur,
     fullWidth: true,
     margin: "dense",
-    disabled: !!mensajeExitoAlert,
+    disabled: !!mensajeExitoAlert || isDetailView,
   };
+
   return (
     <Dialog
       open={UpdateInstituteShowModal}
@@ -131,18 +137,15 @@ const UpdateInstituteModal = ({
       fullWidth
     >
       <form onSubmit={formik.handleSubmit}>
-        {/* FIC: Aqui va el Titulo de la Modal */}
         <DialogTitle>
           <Typography component="h6">
             <strong>Actualizar Instituto</strong>
           </Typography>
         </DialogTitle>
-        {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
         <DialogContent
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          {/* FIC: Campos de captura o selección */}
           <TextField
             id="IdInstitutoOK"
             label="IdInstitutoOK*"
@@ -156,36 +159,69 @@ const UpdateInstituteModal = ({
             }
             disabled={isDetailView}
           />
-          <TextField
+          <Autocomplete
             id="IdProdServOK"
-            label="IdProdServOK*"
-            {...formik.getFieldProps("IdProdServOK")}
-            error={
-              formik.touched.IdProdServOK && Boolean(formik.errors.IdProdServOK)
+            options={prodServOptions}
+            getOptionLabel={(option) =>
+              `${option.IdProdServOK} - ${option.DesProdServ}`
             }
-            helperText={
-              formik.touched.IdProdServOK && formik.errors.IdProdServOK
+            onChange={handleProdServChange}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="IdProdServOK*"
+                error={
+                  formik.touched.IdProdServOK &&
+                  Boolean(formik.errors.IdProdServOK)
+                }
+                helperText={
+                  formik.touched.IdProdServOK && formik.errors.IdProdServOK
+                }
+                {...commonTextFieldProps}
+              />
+            )}
+            value={
+              prodServOptions.find(
+                (option) => option.IdProdServOK === formik.values.IdProdServOK
+              ) || null
             }
             disabled={isDetailView}
           />
-          <TextField
-            id="IdPresentaOK"
-            label="IdPresentaOK*"
-            {...formik.getFieldProps("IdPresentaOK")}
-            error={
-              formik.touched.IdPresentaOK && Boolean(formik.errors.IdPresentaOK)
-            }
-            helperText={
-              formik.touched.IdPresentaOK && formik.errors.IdPresentaOK
-            }
-            disabled={isDetailView}
-          />
+          {formik.values.IdProdServOK && (
+            <Autocomplete
+              id="IdPresentaOK"
+              options={presentaOptions}
+              getOptionLabel={(option) =>
+                `${option.IdPresentaOK} - ${option.DesPresenta}`
+              }
+              onChange={(event, value) => {
+                formik.setFieldValue("IdPresentaOK", value?.IdPresentaOK || "");
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="IdPresentaOK*"
+                  error={
+                    formik.touched.IdPresentaOK &&
+                    Boolean(formik.errors.IdPresentaOK)
+                  }
+                  helperText={
+                    formik.touched.IdPresentaOK && formik.errors.IdPresentaOK
+                  }
+                  {...commonTextFieldProps}
+                />
+              )}
+              value={
+                presentaOptions.find(
+                  (option) => option.IdPresentaOK === formik.values.IdPresentaOK
+                ) || null
+              }
+              disabled={isDetailView}
+            />
+          )}
         </DialogContent>
-        {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
           <Box m="auto">
-            {console.log("mensajeExitoAlert", mensajeExitoAlert)}
-            {console.log("mensajeErrorAlert", mensajeErrorAlert)}
             {mensajeErrorAlert && (
               <Alert severity="error">
                 <b>¡ERROR!</b> ─ {mensajeErrorAlert}
@@ -197,7 +233,6 @@ const UpdateInstituteModal = ({
               </Alert>
             )}
           </Box>
-          {/* FIC: Boton de Cerrar. */}
           <LoadingButton
             color="secondary"
             loadingPosition="start"
@@ -207,7 +242,6 @@ const UpdateInstituteModal = ({
           >
             <span>CERRAR</span>
           </LoadingButton>
-          {/* FIC: Boton de Guardar. */}
           {!isDetailView && (
             <LoadingButton
               color="primary"
@@ -226,4 +260,5 @@ const UpdateInstituteModal = ({
     </Dialog>
   );
 };
+
 export default UpdateInstituteModal;

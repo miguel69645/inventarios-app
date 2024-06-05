@@ -11,7 +11,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllInstitutes } from "../../services/remote/get/getAllInstitutes";
 import { getOneInstitute } from "../../services/remote/get/getOneInstitute";
 import { DeleteOneInstitute } from "../../services/remote/delete/DeleteOneInstitute";
-import { getConcatenatedDescription } from "../../services/remote/get/getDescription";
+import { getConcatenatedDescription } from "../../services/remote/get/getDescription1";
 import { useDispatch } from "react-redux";
 import { SET_ID_INSTITUTES } from "../../../redux/slices/institutesSlice";
 import AddInstituteModal from "../modals/AddInstituteModal";
@@ -76,7 +76,16 @@ const InstitutesTable = () => {
   const updateInstitutes = async () => {
     try {
       const AllInstitutesData = await getAllInstitutes();
-      setInstitutesData(AllInstitutesData);
+      const descriptions = await getConcatenatedDescription();
+      const InstitutesDataWithDescription = AllInstitutesData.map(
+        (institute, index) => {
+          return {
+            ...institute,
+            DescripcionConcatenada: descriptions[index].DescripcionConcatenada,
+          };
+        }
+      );
+      setInstitutesData(InstitutesDataWithDescription);
     } catch (error) {
       console.error(
         "Error al actualizar los institutos en updateInstitutes:",
@@ -161,7 +170,7 @@ const InstitutesTable = () => {
                     selectedInstituteId
                   );
                   console.log(instituteDetails);
-                  setIsDetailView(false); 
+                  setIsDetailView(false);
                   setUpdateInstituteShowModal(true);
                 } else {
                   alert("Por favor, seleccione un instituto antes de editarlo");
@@ -215,12 +224,12 @@ const InstitutesTable = () => {
           UpdateInstituteShowModal={UpdateInstituteShowModal}
           setUpdateInstituteShowModal={setUpdateInstituteShowModal}
           onClose={() => {
-            setIsDetailView(false); 
+            setIsDetailView(false);
             setUpdateInstituteShowModal(false);
           }}
           instituteId={selectedInstituteId}
           updateInstitutes={updateInstitutes}
-          isDetailView={isDetailView} 
+          isDetailView={isDetailView}
         />
       </Dialog>
       {/* Aquí también agregarás los diálogos para editar y ver detalles si los tienes */}

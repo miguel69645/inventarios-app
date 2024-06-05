@@ -11,6 +11,7 @@ import {
   Alert,
   FormControlLabel,
   Checkbox,
+  Autocomplete,
   InputLabel,
   Select,
   MenuItem,
@@ -26,51 +27,31 @@ import * as Yup from "yup";
 import { StoreValues } from "../../helpers/StoreValues";
 //FIC: Services
 import { postStore } from "../../services/remote/post/AddOneStore";
-import { GetAllLabels } from "../../../labels/services/remote/get/GetAllLabels";
+import { getAllStores1 } from "../../services/remote/get/getStores";
 import { useSelector } from "react-redux";
-const AddStoreModal = ({
-  AddStoreShowModal,
-  setAddStoreShowModal,
-}) => {
+const AddStoreModal = ({ AddStoreShowModal, setAddStoreShowModal }) => {
   const instituto = useSelector((state) => state.institutes.institutesDataArr);
   const negocio = useSelector((state) => state.business.selectedBusinessId);
   const ids = [instituto, negocio];
-  console.log(ids)
+  console.log(ids);
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [StoresValuesLabel, setStoresValuesLabel] = useState([]);
   const [Loading, setLoading] = useState(false);
+  const [storeOptions, setStoreOptions] = useState([]);
 
   useEffect(() => {
-    getDataSelectStoresType();
-  }, []);
-
-  //FIC: Ejecutamos la API que obtiene todas las etiquetas
-  //y filtramos solo la etiqueta de Tipos Giros de Almacenes
-  //para que los ID y Nombres se agreguen como items en el
-  //control <Select> del campo CantidadTransito en la Modal.
-  async function getDataSelectStoresType() {
-    try {
-      const Labels = await GetAllLabels();
-      console.log("Labels:", Labels); // Registrar la respuesta completa
-      const StoresTypes = Labels.find(
-        (label) => label.IdEtiquetaOK === "IdTipoGiros"
-      );
-      console.log("StoresTypes:", StoresTypes); // Registrar el resultado de la búsqueda
-      if (StoresTypes) {
-        setStoresValuesLabel(StoresTypes.valores);
-      } else {
-        console.error(
-          "No se encontraron etiquetas para Tipos Giros de Almacenes"
-        );
+    async function fetchStores() {
+      try {
+        const stores = await getAllStores1();
+        setStoreOptions(stores);
+      } catch (error) {
+        console.error("Error fetching stores:", error);
       }
-    } catch (e) {
-      console.error(
-        "Error al obtener Etiquetas para Tipos Giros de Almacenes:",
-        e
-      );
     }
-  }
+
+    fetchStores();
+  }, []);
 
   //FIC: Definition Formik y Yup.
   const formik = useFormik({
@@ -97,7 +78,6 @@ const AddStoreModal = ({
       CantidadMerma: Yup.string().required("Campo requerido"),
       StockMaximo: Yup.string().required("Campo requerido"),
       StockMinimo: Yup.string().required("Campo requerido"),
-
     }),
     onSubmit: async (values) => {
       //FIC: mostramos el Loading.
@@ -168,19 +148,36 @@ const AddStoreModal = ({
           dividers
         >
           {/* FIC: Campos de captura o selección */}
-          <TextField
+          <Autocomplete
             id="IdAlmacenOK"
-            label="IdAlmacenOK*"
-            value={formik.values.IdAlmacenOK}
-            /* onChange={formik.handleChange} */
-            {...commonTextFieldProps}
-            error={
-              formik.touched.IdAlmacenOK &&
-              Boolean(formik.errors.IdAlmacenOK)
+            options={storeOptions}
+            getOptionLabel={(option) =>
+              `${option.IdAlmacenOK} - ${option.name}`
             }
-            helperText={
-              formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK
-            }
+            onChange={(event, newValue) => {
+              formik.setFieldValue(
+                "IdAlmacenOK",
+                newValue ? newValue.IdAlmacenOK : ""
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="IdAlmacenOK*"
+                error={
+                  formik.touched.IdAlmacenOK &&
+                  Boolean(formik.errors.IdAlmacenOK)
+                }
+                helperText={
+                  formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK
+                }
+              />
+            )}
+            // value={
+            //   storeOptions.find(
+            //     (option) => option.IdAlmacenOK === formik.values.IdAlmacenOK
+            //   ) || null
+            // }
           />
           <TextField
             id="Descripcion"
@@ -189,40 +186,33 @@ const AddStoreModal = ({
             /* onChange={formik.handleChange} */
             {...commonTextFieldProps}
             error={
-              formik.touched.Descripcion &&
-              Boolean(formik.errors.Descripcion)
+              formik.touched.Descripcion && Boolean(formik.errors.Descripcion)
             }
-            helperText={
-              formik.touched.Descripcion && formik.errors.Descripcion
-            }
+            helperText={formik.touched.Descripcion && formik.errors.Descripcion}
           />
           <FormControlLabel
-          label="Principal"
-          control={
-            <Checkbox
-            id="Principal"
-            label="Principal*"
-            value={formik.values.Principal}
-            {...commonTextFieldProps}
-            error={
-              formik.touched.Principal &&
-              Boolean(formik.errors.Principal)
+            label="Principal"
+            control={
+              <Checkbox
+                id="Principal"
+                label="Principal*"
+                value={formik.values.Principal}
+                {...commonTextFieldProps}
+                error={
+                  formik.touched.Principal && Boolean(formik.errors.Principal)
+                }
+                helperText={formik.touched.Principal && formik.errors.Principal}
+              />
             }
-            helperText={
-              formik.touched.Principal && formik.errors.Principal
-            }
-          />
-          }
-          >
-            
-          </FormControlLabel>
+          ></FormControlLabel>
           <TextField
             id="CantidadActual"
             label="CantidadActual*"
             value={formik.values.CantidadActual}
             {...commonTextFieldProps}
             error={
-              formik.touched.CantidadActual && Boolean(formik.errors.CantidadActual)
+              formik.touched.CantidadActual &&
+              Boolean(formik.errors.CantidadActual)
             }
             helperText={
               formik.touched.CantidadActual && formik.errors.CantidadActual
@@ -233,39 +223,62 @@ const AddStoreModal = ({
             label="CantidadDisponible*"
             value={formik.values.CantidadDisponible}
             {...commonTextFieldProps}
-            error={formik.touched.CantidadDisponible && Boolean(formik.errors.CantidadDisponible)}
-            helperText={formik.touched.CantidadDisponible && formik.errors.CantidadDisponible}
+            error={
+              formik.touched.CantidadDisponible &&
+              Boolean(formik.errors.CantidadDisponible)
+            }
+            helperText={
+              formik.touched.CantidadDisponible &&
+              formik.errors.CantidadDisponible
+            }
           />
           <TextField
             id="CantidadApartada"
             label="CantidadApartada*"
             value={formik.values.CantidadApartada}
             {...commonTextFieldProps}
-            error={formik.touched.CantidadApartada && Boolean(formik.errors.CantidadApartada)}
-            helperText={formik.touched.CantidadApartada && formik.errors.CantidadApartada}
+            error={
+              formik.touched.CantidadApartada &&
+              Boolean(formik.errors.CantidadApartada)
+            }
+            helperText={
+              formik.touched.CantidadApartada && formik.errors.CantidadApartada
+            }
           />
           <TextField
             id="CantidadTransito"
             label="CantidadTransito*"
             value={formik.values.CantidadTransito}
             {...commonTextFieldProps}
-            error={formik.touched.CantidadTransito && Boolean(formik.errors.CantidadTransito)}
-            helperText={formik.touched.CantidadTransito && formik.errors.CantidadTransito}
+            error={
+              formik.touched.CantidadTransito &&
+              Boolean(formik.errors.CantidadTransito)
+            }
+            helperText={
+              formik.touched.CantidadTransito && formik.errors.CantidadTransito
+            }
           />
-           <TextField
+          <TextField
             id="CantidadMerma"
             label="CantidadMerma*"
             value={formik.values.CantidadMerma}
             {...commonTextFieldProps}
-            error={formik.touched.CantidadMerma && Boolean(formik.errors.CantidadMerma)}
-            helperText={formik.touched.CantidadMerma && formik.errors.CantidadMerma}
+            error={
+              formik.touched.CantidadMerma &&
+              Boolean(formik.errors.CantidadMerma)
+            }
+            helperText={
+              formik.touched.CantidadMerma && formik.errors.CantidadMerma
+            }
           />
           <TextField
             id="StockMaximo"
             label="StockMaximo*"
             value={formik.values.StockMaximo}
             {...commonTextFieldProps}
-            error={formik.touched.StockMaximo && Boolean(formik.errors.StockMaximo)}
+            error={
+              formik.touched.StockMaximo && Boolean(formik.errors.StockMaximo)
+            }
             helperText={formik.touched.StockMaximo && formik.errors.StockMaximo}
           />
           <TextField
@@ -273,10 +286,11 @@ const AddStoreModal = ({
             label="StockMinimo*"
             value={formik.values.StockMinimo}
             {...commonTextFieldProps}
-            error={formik.touched.StockMinimo && Boolean(formik.errors.StockMinimo)}
+            error={
+              formik.touched.StockMinimo && Boolean(formik.errors.StockMinimo)
+            }
             helperText={formik.touched.StockMinimo && formik.errors.StockMinimo}
           />
-          
         </DialogContent>
         {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>

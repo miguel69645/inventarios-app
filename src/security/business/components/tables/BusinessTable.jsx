@@ -27,18 +27,6 @@ const BusinessTable = () => {
   const id = useSelector((state) => state.institutes.institutesDataArr);
   console.log(id);
 
-  const addBusinesss = async () => {
-    try {
-      const AllBusinesssData = await getAllBusiness();
-      setBusinessData(AllBusinesssData);
-    } catch (error) {
-      console.error(
-        "Error al actualizar los institutos en addBusinesss:",
-        error
-      );
-    }
-  };
-
   const [selectedInstitutoId, setSelectedInstitutoId] = useState(id);
   const [loadingTable, setLoadingTable] = useState(true);
   const [BusinessData, setBusinessData] = useState([]);
@@ -72,6 +60,22 @@ const BusinessTable = () => {
     }
     fetchData();
   }, [dispatch, id]);
+
+  // useEffect para manejar la actualización de los datos cuando se cierra el modal de agregar
+  useEffect(() => {
+    if (!AddBusinessShowModal) {
+      addBusinesss();
+    }
+  }, [AddBusinessShowModal]);
+
+  const addBusinesss = async () => {
+    try {
+      const AllBusinesssData = await getAllBusiness(selectedInstitutoId);
+      setBusinessData(AllBusinesssData);
+    } catch (error) {
+      console.error("Error al actualizar los negocios en addBusinesss:", error);
+    }
+  };
 
   // useEffect para manejar la actualización de los datos cuando se cierra el modal
   useEffect(() => {
@@ -202,7 +206,7 @@ const BusinessTable = () => {
                     selectedBusinessId
                   );
                   console.log(businessDetails);
-                  setIsDetailView(true); 
+                  setIsDetailView(true);
                   setUpdateBusinessShowModal(true);
                 } else {
                   alert(

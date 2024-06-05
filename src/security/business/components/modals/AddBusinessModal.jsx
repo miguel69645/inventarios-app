@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
   Alert,
   Checkbox,
   FormControlLabel,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
@@ -18,6 +19,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { BusinessValues } from "../../helpers/BusinessValues";
 import { postBusiness } from "../../services/remote/post/AddOneBusiness";
+import { getAllBusiness1 } from "../../services/remote/get/getBusiness";
 import { useSelector } from "react-redux";
 
 const AddBusinessModal = ({
@@ -28,6 +30,20 @@ const AddBusinessModal = ({
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [businessOptions, setBusinessOptions] = useState([]);
+
+  useEffect(() => {
+    async function fetchBusiness() {
+      try {
+        const business = await getAllBusiness1();
+        setBusinessOptions(business);
+      } catch (error) {
+        console.error("Error fetching business:", error);
+      }
+    }
+
+    fetchBusiness();
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -87,15 +103,32 @@ const AddBusinessModal = ({
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          <TextField
+          <Autocomplete
             id="IdNegocioOK"
-            label="IdNegocioOK*"
-            value={formik.values.IdNegocioOK}
-            {...commonTextFieldProps}
-            error={
-              formik.touched.IdNegocioOK && Boolean(formik.errors.IdNegocioOK)
+            options={businessOptions}
+            getOptionLabel={(option) =>
+              `${option.IdNegocioOK} - ${option.name}`
             }
-            helperText={formik.touched.IdNegocioOK && formik.errors.IdNegocioOK}
+            onChange={(event, value) =>
+              formik.setFieldValue(
+                "IdNegocioOK",
+                value ? value.IdNegocioOK : ""
+              )
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="IdNegocioOK*"
+                error={
+                  formik.touched.IdNegocioOK &&
+                  Boolean(formik.errors.IdNegocioOK)
+                }
+                helperText={
+                  formik.touched.IdNegocioOK && formik.errors.IdNegocioOK
+                }
+                {...commonTextFieldProps}
+              />
+            )}
           />
           <TextField
             id="descripcionNegocio"
