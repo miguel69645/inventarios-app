@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+//FIC: Material
 import {
   Dialog,
   DialogContent,
@@ -13,96 +14,112 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { useSelector } from "react-redux";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveIcon from "@mui/icons-material/Save";
+//FIC: Formik - Yup
 import { useFormik } from "formik";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
-import { getOneStatus } from "../../services/remote/get/getOneStatus";
-import { updateStatus } from "../../services/remote/put/UpdateOneStatus";
+//FIC: Helpers
 import { StatusValues } from "../../helpers/StatusValues";
+//FIC: Services
+import { putStatus_fisico, putStatus_venta } from "../../services/remote/put/UpdateOneStatus";
+import { getAllStatus } from "../../services/remote/get/getAllStatus";
+import { getOneStatus } from "../../services/remote/get/getOneStatus";
 
 const UpdateStatusModal = ({
-  open,
-  onClose,
-  statusType,
-  selectedStatusId,
+  UpdateStatusShowModal,
+  setUpdateStatusShowModal,
+  statusId,
+  InstitutoId,
   isDetailView,
+  statusType,
 }) => {
   const instituto = useSelector((state) => state.institutes.institutesDataArr);
   const negocio = useSelector((state) => state.business.selectedBusinessId);
   const almacenes = useSelector((state) => state.stores.selectedStoresId);
   const series = useSelector((state) => state.series.selectedSeriesId);
-  const ids = [instituto, negocio, almacenes, series];
+  const ids = [instituto, negocio, almacenes, series, statusId];
   console.log("ids:", ids);
-
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [statusOptions, setStatusOptions] = useState([]);
 
-  const statusOptions =
-    statusType === "Fisico"
-      ? [
-          "IdEstatusFisicoInventariosSeries-IdUsado",
-          "IdEstatusFisicoInventariosSeries-IdNuevo",
-        ]
-      : [
-          "IdEstatusVentaInventariosSeries-IdDisponible",
-          "IdEstatusVentaInventariosSeries-IdReservado",
-          "IdEstatusVentaInventariosSeries-IdVendido",
-        ];
+  useEffect(() => {
+    if (statusId) {
+      getStatusData();
+    }
+  }, [statusId]);
+
+  useEffect(() => {
+    async function fetchStatus() {
+      try {
+        const status = await getAllStatus(ids);
+        setStatusOptions(status);
+      } catch (error) {
+        console.error("Error fetching status:", error);
+      }
+    }
+
+    fetchStatus();
+  }, []);
+
+  async function getStatusData() {
+    try {
+      const statusData = await getOneStatus(ids, statusId);
+      console.log(statusData.Actual);
+      formik.setValues({
+        IdTipoEstatusOK: statusData.IdTipoEstatusOK,
+        Actual: statusData.Actual === 'S',
+        Observaciones: statusData.Observaciones,
+      });
+    } catch (e) {
+      console.error("Error al obtener los datos del instituto:", e);
+    }
+  }
+
+  const status =
+  statusType == "Fisico"
+    ? [
+        "IdEstatusFisicoInventariosSeries-IdUsado",
+        "IdEstatusFisicoInventariosSeries-IdNuevo",
+      ]
+    : [
+        "IdEstatusVentaInventariosSeries-IdDisponible",
+        "IdEstatusVentaInventariosSeries-IdReservado",
+        "IdEstatusVentaInventariosSeries-IdVendido",
+      ];
 
   const formik = useFormik({
     initialValues: {
-      IdTipoEstatusOK: "",
-      Actual: "",
+      IdTipoEstatusOK: status[0],
+      Actual: false,
+      Observaciones: "",
     },
     validationSchema: Yup.object({
-      IdTipoEstatusOK: Yup.string().required("Campo requerido"),
+      IdTipoEstatusOK: Yup.string().required("Requerido"),
       Actual: Yup.boolean(),
+      Observaciones: Yup.string().required("Requerido"),
     }),
     onSubmit: async (values) => {
       setLoading(true);
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
-        values.Actual ? (values.Actual = "S") : (values.Actual = "N");
+        values.Actual = values.Actual  ? "S" : "N";
         const Status = StatusValues(values);
-        console.log(Status);
-        await updateStatus(
-          ids,
-          Status.IdTipoEstatusOK,
-          selectedStatusId,
-          statusType
+        await statusType == "Fisico" ? putStatus_fisico(ids, Status) : putStatus_venta(ids, Status);
+        setMensajeExitoAlert(
+          "Instituto fue actualizado y guardado Correctamente"
         );
-        setMensajeExitoAlert("Status fue actualizado Correctamente");
       } catch (e) {
-        setMensajeErrorAlert("No se pudo actualizar el Status");
+        setMensajeExitoAlert(null);
+        setMensajeErrorAlert("No se pudo actualizar el Instituto: " + e.message);
       }
       setLoading(false);
     },
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (selectedStatusId) {
-        try {
-          const statusData = await getOneStatus(
-            ids,
-            selectedStatusId,
-            statusType
-          );
-          formik.setValues({
-            IdTipoEstatusOK: statusData.IdTipoEstatusOK,
-            Actual: statusData.Actual === "S",
-          });
-        } catch (error) {
-          console.error("Error fetching status data:", error);
-        }
-      }
-    };
-    fetchData();
-  }, [selectedStatusId]);
 
   const commonTextFieldProps = {
     onChange: formik.handleChange,
@@ -113,18 +130,22 @@ const UpdateStatusModal = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth>
+    <Dialog
+      open={UpdateStatusShowModal}
+      onClose={() => setUpdateStatusShowModal(false)}
+      fullWidth
+    >
       <form onSubmit={formik.handleSubmit}>
         <DialogTitle>
           <Typography component="h6">
-            <strong>Actualizar Status</strong>
+            <strong>Actualizar Negocio</strong>
           </Typography>
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          <Autocomplete
+        <Autocomplete
             disablePortal
             id="IdTipoEstatusOK"
             value={formik.values.IdTipoEstatusOK}
@@ -136,14 +157,13 @@ const UpdateStatusModal = ({
             helperText={
               formik.touched.IdTipoEstatusOK && formik.errors.IdTipoEstatusOK
             }
-            options={statusOptions}
+            options={status}
             renderInput={(params) => (
               <TextField {...params} label="IdTipoEstatusOK" />
             )}
             onChange={(event, newValue) => {
               formik.setFieldValue("IdTipoEstatusOK", newValue);
             }}
-            disabled={isDetailView}
           />
           <FormControlLabel
             label="Actual*"
@@ -151,12 +171,25 @@ const UpdateStatusModal = ({
               <Checkbox
                 id="Actual"
                 checked={formik.values.Actual}
-                {...commonTextFieldProps}
-                error={formik.touched.Actual && Boolean(formik.errors.Actual)}
-                helperText={formik.touched.Actual && formik.errors.Actual}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={!!mensajeExitoAlert}
               />
             }
-            disabled={isDetailView}
+          />  
+          <TextField
+            id="Observaciones"
+            label="Observaciones*"
+            value={formik.values.Observaciones}
+            {...commonTextFieldProps}
+            error={
+              formik.touched.Observaciones &&
+              Boolean(formik.errors.Observaciones)
+            }
+            helperText={
+              formik.touched.Observaciones &&
+              formik.errors.Observaciones
+            }
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
@@ -177,7 +210,7 @@ const UpdateStatusModal = ({
             loadingPosition="start"
             startIcon={<CloseIcon />}
             variant="outlined"
-            onClick={onClose}
+            onClick={() => setUpdateStatusShowModal(false)}
           >
             <span>CERRAR</span>
           </LoadingButton>

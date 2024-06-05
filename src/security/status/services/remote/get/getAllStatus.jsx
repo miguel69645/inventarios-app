@@ -1,18 +1,13 @@
 import axios from "axios";
 
-export function getAllStatus(
-  id,
-  selectedBusinessId,
-  selectedStoresId,
-  selectedSeriesId
-) {
-  console.log(id, selectedBusinessId, selectedStoresId, selectedSeriesId);
+export function getAllStatus(ids) {
+  console.log(ids);
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${
-          import.meta.env.VITE_GET_ALL
-        }/${id}/${selectedBusinessId}/${selectedStoresId}/${selectedSeriesId}`
+        `${import.meta.env.VITE_GET_ALL}/${ids[0]}/${ids[1]}/${ids[2]}/${
+          ids[3]
+        }`
       )
       .then((response) => {
         const data = response.data;

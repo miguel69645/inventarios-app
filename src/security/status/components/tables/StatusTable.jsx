@@ -34,7 +34,7 @@ const StatusTable = ({ statusType }) => {
   const selectedSeriesId = useSelector(
     (state) => state.series.selectedSeriesId
   );
-
+  const ids = [id, selectedBusinessId, selectedStoresId, selectedSeriesId];
   const [loadingTable, setLoadingTable] = useState(true);
   const [StatusData, setStatusData] = useState([]);
   const [selectedStatusId, setSelectedStatusId] = useState(null);
@@ -42,6 +42,7 @@ const StatusTable = ({ statusType }) => {
   const [AddStatusShowModal, setAddStatusShowModal] = useState(false);
   const [UpdateStatusShowModal, setUpdateStatusShowModal] = useState(false);
   const [isDetailView, setIsDetailView] = useState(false);
+  const [deleteStatus, setDeleteStatus] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -49,10 +50,7 @@ const StatusTable = ({ statusType }) => {
     async function fetchData() {
       try {
         const AllStatusData = await getAllStatus(
-          id,
-          selectedBusinessId,
-          selectedStoresId,
-          selectedSeriesId
+          ids
         );
         const filteredStatusData = AllStatusData.filter((status) =>
           status.IdTipoEstatusOK.includes(statusType)
@@ -89,7 +87,8 @@ const StatusTable = ({ statusType }) => {
     statusType,
     AddStatusShowModal,
     UpdateStatusShowModal,
-    selectedStatusId, // Agrega selectedStatusId a las dependencias del useEffect
+    selectedStatusId,
+    deleteStatus,// Agrega selectedStatusId a las dependencias del useEffect
   ]);
 
   const handleRowClick = (row) => {
@@ -120,17 +119,7 @@ const StatusTable = ({ statusType }) => {
             selectedStatusId
           );
         }
-        // Actualizar los datos de la tabla después de eliminar el estado
-        const AllStatusData = await getAllStatus(
-          id,
-          selectedBusinessId,
-          selectedStoresId,
-          selectedSeriesId
-        );
-        const filteredStatusData = AllStatusData.filter((status) =>
-          status.IdTipoEstatusOK.includes(statusType)
-        );
-        setStatusData(filteredStatusData);
+        setDeleteStatus(true);
       } catch (error) {
         console.error("Error al eliminar el estado:", error);
       }
@@ -233,10 +222,12 @@ const StatusTable = ({ statusType }) => {
         <UpdateStatusModal
           open={UpdateStatusShowModal}
           onClose={() => setUpdateStatusShowModal(false)}
+          UpdateStatusShowModal={UpdateStatusShowModal}
+          setUpdateStatusShowModal={setUpdateStatusShowModal}
           statusType={statusType}
-          selectedStatusId={selectedStatusId}
-          // refreshData={() => setUpdateStatusShowModal(false)}
+          statusId={selectedStatusId}
           isDetailView={isDetailView}
+          // refreshData={() => setUpdateStatusShowModal(false)}
         />
       </Dialog>
     </Box>

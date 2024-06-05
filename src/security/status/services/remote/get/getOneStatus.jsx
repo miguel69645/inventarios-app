@@ -1,7 +1,9 @@
 import axios from "axios";
 
 export function getOneStatus(ids, selectedStatusId) {
-  console.log(ids);
+  console.log(`${import.meta.env.VITE_GET_ALL}/${ids[0]}/${ids[1]}/${ids[2]}/${
+    ids[3]
+  }`);
   return new Promise((resolve, reject) => {
     axios
       .get(
