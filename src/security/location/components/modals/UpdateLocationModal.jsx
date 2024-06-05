@@ -10,6 +10,7 @@ import {
   Alert,
   FormControlLabel,
   Checkbox,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
@@ -18,8 +19,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { putLocation } from "../../services/remote/put/UpdateOneLocation";
 import { getOneLocation } from "../../services/remote/get/getOneLocation";
+import { getAllLocations1 } from "../../services/remote/get/getLocation";
 import { LocationValues } from "../../helpers/LocationValues";
-import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
 const UpdateLocationModal = ({
@@ -37,18 +38,43 @@ const UpdateLocationModal = ({
 
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
-  const [statusOptions, setStatusOptions] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
   const [Loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchLocationOptions();
+    fetchLocationData();
+  }, []);
+
+  async function fetchLocationOptions() {
+    try {
+      const locations = await getAllLocations1();
+      setLocationOptions(locations);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  }
+
+  async function fetchLocationData() {
+    try {
+      const locationData = await getOneLocation(ids, selectedUbicacionId);
+      formik.setValues({
+        Ubicacion: locationData.Ubicacion,
+        Actual: locationData.Actual === "S" ? true : false,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const formik = useFormik({
     initialValues: {
-      Ubicacion: selectedUbicacionId.Ubicacion || "",
-      Actual: selectedUbicacionId.Actual || "",
+      Ubicacion: "",
+      Actual: "",
     },
     validationSchema: Yup.object({
       Ubicacion: Yup.string().required("Campo requerido"),
       Actual: Yup.string(),
-      
     }),
     onSubmit: async (values) => {
       setLoading(true);
@@ -66,23 +92,6 @@ const UpdateLocationModal = ({
       setLoading(false);
     },
   });
-
-  async function fetchLocationData() {
-    try {
-      const locationData = await getOneLocation(ids, selectedUbicacionId);
-      setStatusOptions(locationData);
-      formik.setValues({
-        Ubicacion: locationData.Ubicacion,
-        Actual: locationData.Actual === "S" ? true : false,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  useEffect(() => {
-    fetchLocationData();
-  }, []);
 
   const commonTextFieldProps = {
     onChange: formik.handleChange,
@@ -108,14 +117,33 @@ const UpdateLocationModal = ({
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          <TextField
+          <Autocomplete
             id="Ubicacion"
-            label="Ubicación*"
-            value={formik.values.Ubicacion}
-            {...commonTextFieldProps}
-            error={formik.touched.Ubicacion && Boolean(formik.errors.Ubicacion)}
-            helperText={formik.touched.Ubicacion && formik.errors.Ubicacion}
-            disabled={isDetailView}
+            options={locationOptions}
+            getOptionLabel={(option) => `${option.Ubicacion}`}
+            onChange={(event, newValue) => {
+              formik.setFieldValue(
+                "Ubicacion",
+                newValue ? newValue.Ubicacion : ""
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Ubicación*"
+                error={
+                  formik.touched.Ubicacion && Boolean(formik.errors.Ubicacion)
+                }
+                helperText={formik.touched.Ubicacion && formik.errors.Ubicacion}
+                disabled={isDetailView}
+              />
+            )}
+            value={
+              locationOptions.find(
+                (option) => option.Ubicacion === formik.values.Ubicacion
+              ) || null
+            }
+            disabled={!!mensajeExitoAlert}
           />
           <FormControlLabel
             label="Actual*"
