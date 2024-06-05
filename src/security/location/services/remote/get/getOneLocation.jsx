@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export function getOneLocation(ids, selectedStatusId) {
-  console.log(ids);
+export function getOneLocation(ids, selectedUbicacionId) {
+  console.log("hola", ids, selectedUbicacionId);
   return new Promise((resolve, reject) => {
     axios
       .get(
@@ -11,38 +11,33 @@ export function getOneLocation(ids, selectedStatusId) {
       )
       .then((response) => {
         const data = response.data;
-        console.log("e", data);
-        let location = {};
-        data.location.map((locationItem) => {
-          if (locationItem.IdTipoEstatusOK == selectedStatusId) {
-            location = {
-              Ubicacion: locationItem.Ubicacion,
-              Actual: locationItem.Actual,
-            };
-          } else return;
-        });
-        console.log(location);
-        if (response.location === 200) {
-          if (data.length === 0) {
-            console.info(
-              "🛈 No se encontraron documentos en <<cat_institutos>>"
+        if (data && Array.isArray(data.location)) {
+          const location = data.location
+            .flat()
+            .find(
+              (locationItem) => locationItem.Ubicacion == selectedUbicacionId
             );
-            resolve([]);
-          } else {
-            console.log("Colección: <<cat_institutos>>", data);
+          console.log(location);
+          if (location) {
             resolve(location);
+          } else {
+            console.error(
+              "No se pudo encontrar la ubicación con el ID proporcionado",
+              selectedUbicacionId
+            );
+            reject(new Error("Ubicación no encontrada"));
           }
         } else {
           console.error(
-            "No se pudo realizar correctamente la petición <<getAllInstitutes - Services>>",
+            "No se pudo realizar correctamente la petición <<getOneLocation - Location>>",
             data
           );
-          reject(location);
+          reject(data); // Rechaza la promesa con la respuesta si no fue exitosa
         }
       })
       .catch((error) => {
-        console.error("Error en <<getAllInstitutes - Services>>", error);
-        reject(error);
+        console.error("Error en <<getOneLocation - Location>>", error);
+        reject(error); // Rechaza la promesa en caso de error
       });
   });
 }

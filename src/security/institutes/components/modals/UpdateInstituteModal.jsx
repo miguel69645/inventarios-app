@@ -31,8 +31,9 @@ const UpdateInstituteModal = ({
   setUpdateInstituteShowModal,
   instituteId,
   updateInstitutes,
+  isDetailView,
 }) => {
-  console.log(instituteId)
+  console.log(instituteId);
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [InstitutesValuesLabel, setInstitutesValuesLabel] = useState([]);
@@ -153,18 +154,19 @@ const UpdateInstituteModal = ({
             helperText={
               formik.touched.IdInstitutoOK && formik.errors.IdInstitutoOK
             }
+            disabled={isDetailView}
           />
           <TextField
             id="IdProdServOK"
             label="IdProdServOK*"
             {...formik.getFieldProps("IdProdServOK")}
             error={
-              formik.touched.IdProdServOK &&
-              Boolean(formik.errors.IdProdServOK)
+              formik.touched.IdProdServOK && Boolean(formik.errors.IdProdServOK)
             }
             helperText={
               formik.touched.IdProdServOK && formik.errors.IdProdServOK
             }
+            disabled={isDetailView}
           />
           <TextField
             id="IdPresentaOK"
@@ -176,6 +178,7 @@ const UpdateInstituteModal = ({
             helperText={
               formik.touched.IdPresentaOK && formik.errors.IdPresentaOK
             }
+            disabled={isDetailView}
           />
         </DialogContent>
         {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
@@ -205,17 +208,19 @@ const UpdateInstituteModal = ({
             <span>CERRAR</span>
           </LoadingButton>
           {/* FIC: Boton de Guardar. */}
-          <LoadingButton
-            color="primary"
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-            type="submit"
-            disabled={!!mensajeExitoAlert}
-            loading={Loading}
-          >
-            <span>GUARDAR</span>
-          </LoadingButton>
+          {!isDetailView && (
+            <LoadingButton
+              color="primary"
+              loadingPosition="start"
+              startIcon={<SaveIcon />}
+              variant="contained"
+              type="submit"
+              disabled={!!mensajeExitoAlert}
+              loading={Loading}
+            >
+              <span>GUARDAR</span>
+            </LoadingButton>
+          )}
         </DialogActions>
       </form>
     </Dialog>

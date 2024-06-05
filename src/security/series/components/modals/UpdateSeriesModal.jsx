@@ -30,6 +30,7 @@ const UpdateSeriesModal = ({
   storeId,
   selectedSeriesId,
   updateSeries,
+  isDetailView,
 }) => {
   const ids = [instituteId, businessId, storeId, selectedSeriesId];
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
@@ -114,6 +115,7 @@ const UpdateSeriesModal = ({
             {...formik.getFieldProps("Serie")}
             error={formik.touched.Serie && Boolean(formik.errors.Serie)}
             helperText={formik.touched.Serie && formik.errors.Serie}
+            disabled={isDetailView}
           />
           <TextField
             id="Placa"
@@ -121,6 +123,7 @@ const UpdateSeriesModal = ({
             {...formik.getFieldProps("Placa")}
             error={formik.touched.Placa && Boolean(formik.errors.Placa)}
             helperText={formik.touched.Placa && formik.errors.Placa}
+            disabled={isDetailView}
           />
           <TextField
             id="Observacion"
@@ -130,6 +133,7 @@ const UpdateSeriesModal = ({
               formik.touched.Observacion && Boolean(formik.errors.Observacion)
             }
             helperText={formik.touched.Observacion && formik.errors.Observacion}
+            disabled={isDetailView}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
@@ -154,17 +158,19 @@ const UpdateSeriesModal = ({
           >
             <span>CERRAR</span>
           </LoadingButton>
-          <LoadingButton
-            color="primary"
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-            type="submit"
-            disabled={!!mensajeExitoAlert}
-            loading={Loading}
-          >
-            <span>GUARDAR</span>
-          </LoadingButton>
+          {!isDetailView && (
+            <LoadingButton
+              color="primary"
+              loadingPosition="start"
+              startIcon={<SaveIcon />}
+              variant="contained"
+              type="submit"
+              disabled={!!mensajeExitoAlert}
+              loading={Loading}
+            >
+              <span>GUARDAR</span>
+            </LoadingButton>
+          )}
         </DialogActions>
       </form>
     </Dialog>

@@ -29,6 +29,7 @@ const SeriessTable = () => {
   const [rowSelection, setRowSelection] = useState({});
   const [AddSeriesShowModal, setAddSeriesShowModal] = useState(false);
   const [UpdateSeriesShowModal, setUpdateSeriesShowModal] = useState(false);
+  const [isDetailView, setIsDetailView] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -182,6 +183,7 @@ const SeriessTable = () => {
             <IconButton
               onClick={() => {
                 setUpdateSeriesShowModal(true);
+                setIsDetailView(false);
                 console.log("UpdateSeriesShowModal:", UpdateSeriesShowModal);
               }}
             >
@@ -194,7 +196,12 @@ const SeriessTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Detalles">
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                setIsDetailView(true);
+                setUpdateSeriesShowModal(true);
+              }}
+            >
               <InfoIcon />
             </IconButton>
           </Tooltip>
@@ -225,6 +232,7 @@ const SeriessTable = () => {
           storeId={selectedStoresId}
           selectedSeriesId={selectedSeriesId}
           updateSeries={fetchSeriesData}
+          isDetailView={isDetailView}
         />
       </Dialog>
     </Box>

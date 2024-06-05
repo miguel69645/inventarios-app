@@ -23,10 +23,9 @@ const InstitutesTable = () => {
   const [selectedInstituteId, setSelectedInstituteId] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
   const [addInstituteShowModal, setAddInstituteShowModal] = useState(false);
-  const [DetailsInstituteShowModal, setDetailsInstituteShowModal] =
-    useState(false);
   const [UpdateInstituteShowModal, setUpdateInstituteShowModal] =
     useState(false);
+  const [isDetailView, setIsDetailView] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -162,6 +161,7 @@ const InstitutesTable = () => {
                     selectedInstituteId
                   );
                   console.log(instituteDetails);
+                  setIsDetailView(false); 
                   setUpdateInstituteShowModal(true);
                 } else {
                   alert("Por favor, seleccione un instituto antes de editarlo");
@@ -178,11 +178,16 @@ const InstitutesTable = () => {
           </Tooltip>
           <Tooltip title="Detalles">
             <IconButton
-              onClick={() => {
+              onClick={async () => {
                 if (selectedInstituteId !== null) {
-                  setDetailsInstituteShowModal(true);
+                  const instituteDetails = await getOneInstitute(
+                    selectedInstituteId
+                  );
+                  console.log(instituteDetails);
+                  setIsDetailView(true); // Añade esta línea
+                  setUpdateInstituteShowModal(true);
                 } else {
-                  alert("Por favor, selecciona una fila para ver detalles.");
+                  alert("Por favor, seleccione un instituto antes de editarlo");
                 }
               }}
             >
@@ -209,9 +214,13 @@ const InstitutesTable = () => {
         <UpdateInstituteModal
           UpdateInstituteShowModal={UpdateInstituteShowModal}
           setUpdateInstituteShowModal={setUpdateInstituteShowModal}
-          onClose={() => setUpdateInstituteShowModal(false)}
+          onClose={() => {
+            setIsDetailView(false); 
+            setUpdateInstituteShowModal(false);
+          }}
           instituteId={selectedInstituteId}
           updateInstitutes={updateInstitutes}
+          isDetailView={isDetailView} 
         />
       </Dialog>
       {/* Aquí también agregarás los diálogos para editar y ver detalles si los tienes */}

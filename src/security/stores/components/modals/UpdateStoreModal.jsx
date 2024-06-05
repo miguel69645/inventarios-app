@@ -32,6 +32,7 @@ const UpdateStoreModal = ({
   businessId,
   selectedStoreId,
   updateStores,
+  isDetailView,
 }) => {
   const ids = [instituteId, businessId, selectedStoreId];
   console.log(ids);
@@ -152,6 +153,7 @@ const UpdateStoreModal = ({
               formik.touched.IdAlmacenOK && Boolean(formik.errors.IdAlmacenOK)
             }
             helperText={formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK}
+            detail={isDetailView}
           />
           <TextField
             id="Descripcion"
@@ -161,6 +163,7 @@ const UpdateStoreModal = ({
               formik.touched.Descripcion && Boolean(formik.errors.Descripcion)
             }
             helperText={formik.touched.Descripcion && formik.errors.Descripcion}
+            disabled={isDetailView}
           />
           <FormControlLabel
             control={
@@ -174,6 +177,7 @@ const UpdateStoreModal = ({
               />
             }
             label="Principal*"
+            disabled={isDetailView}
           />
           <TextField
             id="CantidadActual"
@@ -186,6 +190,7 @@ const UpdateStoreModal = ({
             helperText={
               formik.touched.CantidadActual && formik.errors.CantidadActual
             }
+            disabled={isDetailView}
           />
           <TextField
             id="CantidadDisponible"
@@ -199,6 +204,7 @@ const UpdateStoreModal = ({
               formik.touched.CantidadDisponible &&
               formik.errors.CantidadDisponible
             }
+            disabled={isDetailView}
           />
           <TextField
             id="CantidadApartada"
@@ -211,6 +217,7 @@ const UpdateStoreModal = ({
             helperText={
               formik.touched.CantidadApartada && formik.errors.CantidadApartada
             }
+            disabled={isDetailView}
           />
           <TextField
             id="CantidadTransito"
@@ -223,6 +230,7 @@ const UpdateStoreModal = ({
             helperText={
               formik.touched.CantidadTransito && formik.errors.CantidadTransito
             }
+            disabled={isDetailView}
           />
           <TextField
             id="CantidadMerma"
@@ -235,6 +243,7 @@ const UpdateStoreModal = ({
             helperText={
               formik.touched.CantidadMerma && formik.errors.CantidadMerma
             }
+            disabled={isDetailView}
           />
           <TextField
             id="StockMaximo"
@@ -244,6 +253,7 @@ const UpdateStoreModal = ({
               formik.touched.StockMaximo && Boolean(formik.errors.StockMaximo)
             }
             helperText={formik.touched.StockMaximo && formik.errors.StockMaximo}
+            disabled={isDetailView}
           />
           <TextField
             id="StockMinimo"
@@ -253,6 +263,7 @@ const UpdateStoreModal = ({
               formik.touched.StockMinimo && Boolean(formik.errors.StockMinimo)
             }
             helperText={formik.touched.StockMinimo && formik.errors.StockMinimo}
+            disabled={isDetailView}
           />
         </DialogContent>
         {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
@@ -282,17 +293,19 @@ const UpdateStoreModal = ({
             <span>CERRAR</span>
           </LoadingButton>
           {/* FIC: Boton de Guardar. */}
-          <LoadingButton
-            color="primary"
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-            type="submit"
-            disabled={!!mensajeExitoAlert}
-            loading={Loading}
-          >
-            <span>GUARDAR</span>
-          </LoadingButton>
+          {!isDetailView && (
+            <LoadingButton
+              color="primary"
+              loadingPosition="start"
+              startIcon={<SaveIcon />}
+              variant="contained"
+              type="submit"
+              disabled={!!mensajeExitoAlert}
+              loading={Loading}
+            >
+              <span>GUARDAR</span>
+            </LoadingButton>
+          )}
         </DialogActions>
       </form>
     </Dialog>

@@ -27,6 +27,7 @@ const UpdateStatusModal = ({
   onClose,
   statusType,
   selectedStatusId,
+  isDetailView,
 }) => {
   const instituto = useSelector((state) => state.institutes.institutesDataArr);
   const negocio = useSelector((state) => state.business.selectedBusinessId);
@@ -67,8 +68,13 @@ const UpdateStatusModal = ({
       try {
         values.Actual ? (values.Actual = "S") : (values.Actual = "N");
         const Status = StatusValues(values);
-        console.log(Status)
-        await updateStatus(ids, Status.IdTipoEstatusOK, selectedStatusId, statusType);
+        console.log(Status);
+        await updateStatus(
+          ids,
+          Status.IdTipoEstatusOK,
+          selectedStatusId,
+          statusType
+        );
         setMensajeExitoAlert("Status fue actualizado Correctamente");
       } catch (e) {
         setMensajeErrorAlert("No se pudo actualizar el Status");
@@ -137,6 +143,7 @@ const UpdateStatusModal = ({
             onChange={(event, newValue) => {
               formik.setFieldValue("IdTipoEstatusOK", newValue);
             }}
+            disabled={isDetailView}
           />
           <FormControlLabel
             label="Actual*"
@@ -149,6 +156,7 @@ const UpdateStatusModal = ({
                 helperText={formik.touched.Actual && formik.errors.Actual}
               />
             }
+            disabled={isDetailView}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
@@ -173,17 +181,19 @@ const UpdateStatusModal = ({
           >
             <span>CERRAR</span>
           </LoadingButton>
-          <LoadingButton
-            color="primary"
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-            type="submit"
-            disabled={!!mensajeExitoAlert}
-            loading={Loading}
-          >
-            <span>GUARDAR</span>
-          </LoadingButton>
+          {!isDetailView && (
+            <LoadingButton
+              color="primary"
+              loadingPosition="start"
+              startIcon={<SaveIcon />}
+              variant="contained"
+              type="submit"
+              disabled={!!mensajeExitoAlert}
+              loading={Loading}
+            >
+              <span>GUARDAR</span>
+            </LoadingButton>
+          )}
         </DialogActions>
       </form>
     </Dialog>

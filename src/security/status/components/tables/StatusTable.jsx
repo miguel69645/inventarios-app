@@ -41,6 +41,7 @@ const StatusTable = ({ statusType }) => {
   const [rowSelection, setRowSelection] = useState({});
   const [AddStatusShowModal, setAddStatusShowModal] = useState(false);
   const [UpdateStatusShowModal, setUpdateStatusShowModal] = useState(false);
+  const [isDetailView, setIsDetailView] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -186,7 +187,12 @@ const StatusTable = ({ statusType }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Editar">
-            <IconButton onClick={() => setUpdateStatusShowModal(true)}>
+            <IconButton
+              onClick={() => {
+                setUpdateStatusShowModal(true);
+                setIsDetailView(false);
+              }}
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -196,7 +202,12 @@ const StatusTable = ({ statusType }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Detalles">
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                setUpdateStatusShowModal(true);
+                setIsDetailView(true);
+              }}
+            >
               <InfoIcon />
             </IconButton>
           </Tooltip>
@@ -225,6 +236,7 @@ const StatusTable = ({ statusType }) => {
           statusType={statusType}
           selectedStatusId={selectedStatusId}
           // refreshData={() => setUpdateStatusShowModal(false)}
+          isDetailView={isDetailView}
         />
       </Dialog>
     </Box>

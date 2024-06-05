@@ -34,6 +34,7 @@ const UpdateBusinessModal = ({
   businessId,
   InstitutoId,
   updateBusinesss,
+  isDetailView,
 }) => {
   const ids = [InstitutoId, businessId];
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
@@ -154,6 +155,7 @@ const UpdateBusinessModal = ({
               formik.touched.IdNegocioOK && Boolean(formik.errors.IdNegocioOK)
             }
             helperText={formik.touched.IdNegocioOK && formik.errors.IdNegocioOK}
+            disabled={isDetailView}
           />
           <TextField
             id="descripcionNegocio"
@@ -167,6 +169,7 @@ const UpdateBusinessModal = ({
               formik.touched.descripcionNegocio &&
               formik.errors.descripcionNegocio
             }
+            disabled={isDetailView}
           />
           <FormControlLabel
             label="ControlaSerie*"
@@ -180,6 +183,7 @@ const UpdateBusinessModal = ({
                 disabled={!!mensajeExitoAlert}
               />
             }
+            disabled={isDetailView}
           />
         </DialogContent>
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
@@ -206,17 +210,19 @@ const UpdateBusinessModal = ({
           >
             <span>CERRAR</span>
           </LoadingButton>
-          <LoadingButton
-            color="primary"
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-            type="submit"
-            disabled={!!mensajeExitoAlert}
-            loading={Loading}
-          >
-            <span>GUARDAR</span>
-          </LoadingButton>
+          {!isDetailView && (
+            <LoadingButton
+              color="primary"
+              loadingPosition="start"
+              startIcon={<SaveIcon />}
+              variant="contained"
+              type="submit"
+              disabled={!!mensajeExitoAlert}
+              loading={Loading}
+            >
+              <span>GUARDAR</span>
+            </LoadingButton>
+          )}
         </DialogActions>
       </form>
     </Dialog>

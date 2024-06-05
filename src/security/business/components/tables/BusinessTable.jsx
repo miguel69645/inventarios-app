@@ -46,6 +46,7 @@ const BusinessTable = () => {
   const [rowSelection, setRowSelection] = useState({});
   const [AddBusinessShowModal, setAddBusinessShowModal] = useState(false);
   const [UpdateBusinessShowModal, setUpdateBusinessShowModal] = useState(false);
+  const [isDetailView, setIsDetailView] = useState(false);
   const dispatch = useDispatch();
 
   // useEffect para manejar la carga inicial de los datos
@@ -177,6 +178,7 @@ const BusinessTable = () => {
                     selectedBusinessId
                   );
                   console.log(BusinessDetails);
+                  setIsDetailView(false);
                   setUpdateBusinessShowModal(true);
                 } else {
                   alert("Por favor, seleccione un instituto antes de editarlo");
@@ -192,7 +194,23 @@ const BusinessTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Detalles">
-            <IconButton>
+            <IconButton
+              onClick={async () => {
+                if (selectedBusinessId !== null) {
+                  const businessDetails = await getOneBusiness(
+                    selectedInstitutoId,
+                    selectedBusinessId
+                  );
+                  console.log(businessDetails);
+                  setIsDetailView(true); 
+                  setUpdateBusinessShowModal(true);
+                } else {
+                  alert(
+                    "Por favor, seleccione un negocio antes de ver los detalles"
+                  );
+                }
+              }}
+            >
               <InfoIcon />
             </IconButton>
           </Tooltip>
@@ -220,6 +238,7 @@ const BusinessTable = () => {
           InstitutoId={selectedInstitutoId}
           businessId={selectedBusinessId}
           updateBusinesss={updateBusiness}
+          isDetailView={isDetailView}
         />
       </Dialog>
     </Box>

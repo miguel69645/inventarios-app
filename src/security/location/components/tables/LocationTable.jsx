@@ -19,6 +19,7 @@ import { getAllLocations } from "../../services/remote/get/getAllLocation";
 import { deleteLocation } from "../../services/remote/delete/DeleteOneLocation";
 import { useSelector, useDispatch } from "react-redux";
 import AddLocationModal from "../modals/AddLocationModal";
+import UpdateLocationModal from "../modals/UpdateLocationModal";
 import { SET_ID_UBICACION } from "../../../redux/slices/locationsSlice";
 
 const LocationsTable = () => {
@@ -36,8 +37,11 @@ const LocationsTable = () => {
   const [loadingTable, setLoadingTable] = useState(true);
   const [LocationsData, setLocationsData] = useState([]);
   const [selectedUbicacionId, setSelectedUbicacionId] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
   const [AddLocationShowModal, setAddLocationShowModal] = useState(false);
+  const [UpdateLocationShowModal, setUpdateLocationShowModal] = useState(false);
+  const [isDetailView, setIsDetailView] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -72,6 +76,7 @@ const LocationsTable = () => {
     selectedStoresId,
     selectedSeriesId,
     AddLocationShowModal,
+    UpdateLocationShowModal,
   ]);
 
   const handleRowClick = (row) => {
@@ -160,7 +165,12 @@ const LocationsTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Editar">
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                setUpdateLocationShowModal(true);
+                setIsDetailView(false);
+              }}
+            >
               <EditIcon />
             </IconButton>
           </Tooltip>
@@ -170,7 +180,12 @@ const LocationsTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Detalles">
-            <IconButton>
+            <IconButton
+              onClick={() => {
+                setUpdateLocationShowModal(true);
+                setIsDetailView(true);
+              }}
+            >
               <InfoIcon />
             </IconButton>
           </Tooltip>
@@ -189,6 +204,15 @@ const LocationsTable = () => {
           AddLocationShowModal={AddLocationShowModal}
           setAddLocationShowModal={setAddLocationShowModal}
           onClose={() => setAddLocationShowModal(false)}
+        />
+      </Dialog>
+      <Dialog open={UpdateLocationShowModal}>
+        <UpdateLocationModal
+          UpdateLocationShowModal={UpdateLocationShowModal}
+          setUpdateLocationShowModal={setUpdateLocationShowModal}
+          selectedUbicacionId={selectedUbicacionId}
+          isDetailView={isDetailView}
+          onClose={() => setUpdateLocationShowModal(false)}
         />
       </Dialog>
     </Box>

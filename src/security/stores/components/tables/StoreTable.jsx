@@ -16,6 +16,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import InfoIcon from "@mui/icons-material/Info";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getAllStores } from "../../services/remote/get/getAllStores";
+import { getOneStore } from "../../services/remote/get/getOneStore";
 import { deleteStore } from "../../services/remote/delete/DeleteOneStore";
 import { useSelector, useDispatch } from "react-redux";
 import { SET_ID_STORES } from "../../../redux/slices/storesSlice";
@@ -33,6 +34,7 @@ const StoresTable = () => {
   const [selectedStoreId, setSelectedStoreId] = useState(null);
   const [rowSelection, setRowSelection] = useState({});
   const [AddStoreShowModal, setAddStoreShowModal] = useState(false);
+  const [isDetailView, setIsDetailView] = useState(false);
   const dispatch = useDispatch();
 
   // useEffect para manejar la carga inicial de los datos
@@ -191,6 +193,7 @@ const StoresTable = () => {
           <Tooltip title="Editar">
             <IconButton
               onClick={() => {
+                setIsDetailView(false);
                 setUpdateStoreShowModal(true);
               }}
             >
@@ -203,7 +206,12 @@ const StoresTable = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Detalles">
-            <IconButton>
+            <IconButton
+              onClick={async () => {
+                  setIsDetailView(true);
+                  setUpdateStoreShowModal(true);
+              }}
+            >
               <InfoIcon />
             </IconButton>
           </Tooltip>
@@ -232,6 +240,7 @@ const StoresTable = () => {
           businessId={selectedBusinessId}
           selectedStoreId={selectedStoreId}
           updateStores={updateStores}
+          isDetailView={isDetailView}
         />
       </Dialog>
     </Box>
