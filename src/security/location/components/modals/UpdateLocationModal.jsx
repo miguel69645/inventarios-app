@@ -18,6 +18,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { putLocation } from "../../services/remote/put/UpdateOneLocation";
 import { getOneLocation } from "../../services/remote/get/getOneLocation";
+import { LocationValues } from "../../helpers/LocationValues";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
@@ -31,10 +32,12 @@ const UpdateLocationModal = ({
   const negocio = useSelector((state) => state.business.selectedBusinessId);
   const almacenes = useSelector((state) => state.stores.selectedStoresId);
   const series = useSelector((state) => state.series.selectedSeriesId);
-  const ids = [instituto, negocio, almacenes, series];
+  const ids = [instituto, negocio, almacenes, series, selectedUbicacionId];
+  console.log("ids:", ids);
 
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
+  const [statusOptions, setStatusOptions] = useState([]);
   const [Loading, setLoading] = useState(false);
 
   const formik = useFormik({
@@ -52,34 +55,33 @@ const UpdateLocationModal = ({
       setMensajeExitoAlert(null);
       try {
         values.Actual ? (values.Actual = "S") : (values.Actual = "N");
-        await putLocation(ids, selectedUbicacionId.Ubicacion, values);
+        const Location = LocationValues(values);
+        await putLocation(ids, Location);
         setMensajeExitoAlert("Ubicación fue actualizada Correctamente");
       } catch (e) {
+        setMensajeErrorAlert("No se pudo actualizar la Ubicación" + e.message);
         setMensajeExitoAlert(null);
-        setMensajeErrorAlert("No se pudo actualizar la Ubicación");
       }
       setLoading(false);
     },
   });
 
-  const dispatch = useDispatch();
+  async function fetchLocationData() {
+    try {
+      const locationData = await getOneLocation(ids, selectedUbicacionId);
+      setStatusOptions(locationData);
+      formik.setValues({
+        Ubicacion: locationData.Ubicacion,
+        Actual: locationData.Actual,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
-    const fetchLocationData = async () => {
-      try {
-        const locationData = await getOneLocation(ids, selectedUbicacionId);
-        dispatch({ type: "LOCATION_FETCHED", payload: locationData });
-        formik.setValues({
-          Ubicacion: locationData.Ubicacion || "",
-          Actual: locationData.Actual || "",
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     fetchLocationData();
-  }, [dispatch, selectedUbicacionId, formik, ids]);
+  }, []);
 
   const commonTextFieldProps = {
     onChange: formik.handleChange,

@@ -1,7 +1,6 @@
 import axios from "axios";
 
 export function getOneLocation(ids, selectedUbicacionId) {
-  console.log("hola", ids, selectedUbicacionId);
   return new Promise((resolve, reject) => {
     axios
       .get(
@@ -11,28 +10,26 @@ export function getOneLocation(ids, selectedUbicacionId) {
       )
       .then((response) => {
         const data = response.data;
-        if (data && Array.isArray(data.location)) {
-          const location = data.location
-            .flat()
-            .find(
-              (locationItem) => locationItem.Ubicacion == selectedUbicacionId
-            );
-          console.log(location);
-          if (location) {
-            resolve(location);
-          } else {
-            console.error(
-              "No se pudo encontrar la ubicación con el ID proporcionado",
-              selectedUbicacionId
-            );
-            reject(new Error("Ubicación no encontrada"));
-          }
+        let ubicacion = {}
+        const location = data.location.map((locationItem) => {
+          locationItem.map((locatito) => {
+            console.log(locatito, selectedUbicacionId);
+            if (locatito.Ubicacion == selectedUbicacionId)
+              ubicacion = {
+                Ubicacion: locatito.Ubicacion,
+                Actual: locatito.Actual,
+              };
+          })
+        });
+        console.log(location);
+        if (location) {
+          resolve(ubicacion);
         } else {
           console.error(
-            "No se pudo realizar correctamente la petición <<getOneLocation - Location>>",
-            data
+            "No se pudo encontrar la ubicación con el ID proporcionado",
+            selectedUbicacionId
           );
-          reject(data); // Rechaza la promesa con la respuesta si no fue exitosa
+          reject(new Error("Ubicación no encontrada"));
         }
       })
       .catch((error) => {

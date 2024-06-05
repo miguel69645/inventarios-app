@@ -1,19 +1,11 @@
 import axios from "axios";
 
 export async function putLocation(
-  id,
-  idNegocioOk,
-  idAlmacenOK,
-  serieId,
-  ubicacionId,
+  ids,
   location
 ) {
   console.log(
-    id,
-    idNegocioOk,
-    idAlmacenOK,
-    serieId,
-    ubicacionId,
+    ids,
     location
   );
   return new Promise((resolve, reject) => {
@@ -21,7 +13,7 @@ export async function putLocation(
       .put(
         `${
           import.meta.env.VITE_GET_ALL
-        }/${id}/negocios/${idNegocioOk}/almacenes/${idAlmacenOK}/series/${serieId}/ubicaciones/${ubicacionId}`,
+        }/${ids[0]}/negocios/${ids[1]}/almacenes/${ids[2]}/series/${ids[3]}/ubicaciones/${ids[4]}`,
         location
       )
       .then((response) => {
