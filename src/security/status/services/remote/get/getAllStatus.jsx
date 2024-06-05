@@ -16,6 +16,7 @@ export function getAllStatus(ids) {
             return {
               IdTipoEstatusOK: status.IdTipoEstatusOK,
               Actual: status.Actual,
+              Observacion: status.Observacion,
             };
           });
           console.log(status);

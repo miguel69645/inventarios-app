@@ -147,6 +147,11 @@ const StatusTable = ({ statusType }) => {
           />
         ),
       },
+      {
+        accessorKey: "Observacion",
+        header: "OBSERVACIONES",
+        size: 100,
+      },
     ],
     []
   );

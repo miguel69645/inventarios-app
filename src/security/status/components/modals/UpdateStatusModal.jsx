@@ -72,7 +72,7 @@ const UpdateStatusModal = ({
       formik.setValues({
         IdTipoEstatusOK: statusData.IdTipoEstatusOK,
         Actual: statusData.Actual === 'S',
-        Observaciones: statusData.Observaciones,
+        Observacion: statusData.Observacion,
       });
     } catch (e) {
       console.error("Error al obtener los datos del instituto:", e);
@@ -95,12 +95,12 @@ const UpdateStatusModal = ({
     initialValues: {
       IdTipoEstatusOK: status[0],
       Actual: false,
-      Observaciones: "",
+      Observacion: "",
     },
     validationSchema: Yup.object({
       IdTipoEstatusOK: Yup.string().required("Requerido"),
       Actual: Yup.boolean(),
-      Observaciones: Yup.string().required("Requerido"),
+      Observacion: Yup.string().required("Requerido"),
     }),
     onSubmit: async (values) => {
       setLoading(true);
@@ -178,17 +178,17 @@ const UpdateStatusModal = ({
             }
           />  
           <TextField
-            id="Observaciones"
-            label="Observaciones*"
-            value={formik.values.Observaciones}
+            id="Observacion"
+            label="Observacion*"
+            value={formik.values.Observacion}
             {...commonTextFieldProps}
             error={
-              formik.touched.Observaciones &&
-              Boolean(formik.errors.Observaciones)
+              formik.touched.Observacion &&
+              Boolean(formik.errors.Observacion)
             }
             helperText={
-              formik.touched.Observaciones &&
-              formik.errors.Observaciones
+              formik.touched.Observacion &&
+              formik.errors.Observacion
             }
           />
         </DialogContent>
