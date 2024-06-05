@@ -11,8 +11,7 @@ import {
   Alert,
   FormControlLabel,
   Checkbox,
-  Select,
-  MenuItem,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
@@ -25,6 +24,8 @@ import { StoreValues } from "../../helpers/StoreValues";
 //FIC: Services
 import { putStore } from "../../services/remote/put/UpdateOneStore";
 import { getOneStore } from "../../services/remote/get/getOneStore";
+import { getAllStores1 } from "../../services/remote/get/getStores";
+
 const UpdateStoreModal = ({
   UpdateStoreShowModal,
   setUpdateStoreShowModal,
@@ -35,22 +36,33 @@ const UpdateStoreModal = ({
   isDetailView,
 }) => {
   const ids = [instituteId, businessId, selectedStoreId];
-  console.log(ids);
-  console.log(instituteId);
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [storeOptions, setStoreOptions] = useState([]);
+
+  useEffect(() => {
+    async function fetchStores() {
+      try {
+        const stores = await getAllStores1();
+        setStoreOptions(stores);
+      } catch (error) {
+        console.error("Error fetching stores:", error);
+      }
+    }
+
+    fetchStores();
+  }, []);
 
   useEffect(() => {
     if (instituteId) {
       getStoreData();
     }
   }, [instituteId]);
+
   async function getStoreData() {
-    console.log("getStoreData is called");
     try {
       const instituteData = await getOneStore(ids);
-      console.log("Store Data:", instituteData);
       formik.setValues({
         IdAlmacenOK: instituteData.IdAlmacenOK,
         Descripcion: instituteData.Descripcion,
@@ -67,6 +79,7 @@ const UpdateStoreModal = ({
       console.error("Error al obtener los datos del instituto:", e);
     }
   }
+
   //FIC: Definition Formik y Yup.
   const formik = useFormik({
     initialValues: {
@@ -94,17 +107,12 @@ const UpdateStoreModal = ({
       StockMinimo: Yup.string().required("Campo requerido"),
     }),
     onSubmit: async (values) => {
-      console.log("FIC: entro al onSubmit");
       setLoading(true);
-      console.log(
-        "FIC: entro al onSubmit despues de hacer click en boton Guardar"
-      );
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
         values.Principal = values.Principal ? "S" : "N";
         const Store = StoreValues(values);
-        console.log("<<Store>>", Store);
         await putStore(ids, Store);
         setMensajeExitoAlert(
           "Instituto fue actualizado y guardado Correctamente"
@@ -118,6 +126,7 @@ const UpdateStoreModal = ({
       setLoading(false);
     },
   });
+
   const commonTextFieldProps = {
     onChange: formik.handleChange,
     onBlur: formik.handleBlur,
@@ -125,6 +134,7 @@ const UpdateStoreModal = ({
     margin: "dense",
     disabled: !!mensajeExitoAlert,
   };
+
   return (
     <Dialog
       open={UpdateStoreShowModal}
@@ -132,28 +142,46 @@ const UpdateStoreModal = ({
       fullWidth
     >
       <form onSubmit={formik.handleSubmit}>
-        {/* FIC: Aqui va el Titulo de la Modal */}
         <DialogTitle>
           <Typography component="h6">
             <strong>Actualizar Almacen</strong>
           </Typography>
         </DialogTitle>
-        {/* FIC: Aqui va un tipo de control por cada Propiedad de Institutos */}
         <DialogContent
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          {/* FIC: Campos de captura o selección */}
-          <TextField
-            disabled
+          <Autocomplete
             id="IdAlmacenOK"
-            label="IdAlmacenOK*"
-            {...formik.getFieldProps("IdAlmacenOK")}
-            error={
-              formik.touched.IdAlmacenOK && Boolean(formik.errors.IdAlmacenOK)
+            options={storeOptions}
+            getOptionLabel={(option) =>
+              `${option.IdAlmacenOK} - ${option.name}`
             }
-            helperText={formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK}
-            detail={isDetailView}
+            onChange={(event, newValue) => {
+              formik.setFieldValue(
+                "IdAlmacenOK",
+                newValue ? newValue.IdAlmacenOK : ""
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="IdAlmacenOK*"
+                error={
+                  formik.touched.IdAlmacenOK &&
+                  Boolean(formik.errors.IdAlmacenOK)
+                }
+                helperText={
+                  formik.touched.IdAlmacenOK && formik.errors.IdAlmacenOK
+                }
+              />
+            )}
+            value={
+              storeOptions.find(
+                (option) => option.IdAlmacenOK === formik.values.IdAlmacenOK
+              ) || null
+            }
+            disabled={isDetailView}
           />
           <TextField
             id="Descripcion"
@@ -266,44 +294,38 @@ const UpdateStoreModal = ({
             disabled={isDetailView}
           />
         </DialogContent>
-        {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
         <DialogActions sx={{ display: "flex", flexDirection: "row" }}>
           <Box m="auto">
-            {console.log("mensajeExitoAlert", mensajeExitoAlert)}
-            {console.log("mensajeErrorAlert", mensajeErrorAlert)}
             {mensajeErrorAlert && (
               <Alert severity="error">
-                <b>¡ERROR!</b> ─ {mensajeErrorAlert}
+                <b>¡ERROR!</b> {mensajeErrorAlert}
               </Alert>
             )}
             {mensajeExitoAlert && (
               <Alert severity="success">
-                <b>¡ÉXITO!</b> ─ {mensajeExitoAlert}
+                <b>¡EXITO!</b> {mensajeExitoAlert}
               </Alert>
             )}
           </Box>
-          {/* FIC: Boton de Cerrar. */}
           <LoadingButton
+            variant="contained"
             color="secondary"
-            loadingPosition="start"
-            startIcon={<CloseIcon />}
-            variant="outlined"
             onClick={() => setUpdateStoreShowModal(false)}
+            startIcon={<CloseIcon />}
+            loadingPosition="start"
           >
-            <span>CERRAR</span>
+            CERRAR
           </LoadingButton>
-          {/* FIC: Boton de Guardar. */}
           {!isDetailView && (
             <LoadingButton
-              color="primary"
+              type="submit"
+              variant="contained"
+              color="secondary"
+              loading={Loading}
               loadingPosition="start"
               startIcon={<SaveIcon />}
-              variant="contained"
-              type="submit"
-              disabled={!!mensajeExitoAlert}
-              loading={Loading}
             >
-              <span>GUARDAR</span>
+              GUARDAR
             </LoadingButton>
           )}
         </DialogActions>
@@ -311,4 +333,5 @@ const UpdateStoreModal = ({
     </Dialog>
   );
 };
+
 export default UpdateStoreModal;

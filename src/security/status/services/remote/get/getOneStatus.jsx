@@ -20,6 +20,7 @@ export function getOneStatus(ids, selectedStatusId) {
             status = {
               IdTipoEstatusOK: statusItem.IdTipoEstatusOK,
               Actual: statusItem.Actual,
+              Observacion: statusItem.Observacion,
             };
           } else return;
         });

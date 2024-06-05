@@ -15,6 +15,7 @@ import {
   Select,
   MenuItem,
   FormHelperText,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useSelector } from "react-redux";
@@ -27,20 +28,34 @@ import * as Yup from "yup";
 import { SeriesValues } from "../../helpers/SeriesValues";
 //FIC: Services
 import { postSerie } from "../../services/remote/post/AddOneSerie";
+import { getAllSeries1 } from "../../services/remote/get/getSeries";
+
 const AddSeriesModal = ({
   AddSeriesShowModal,
   setAddSeriesShowModal,
+  updateSeries,
 }) => {
   const instituto = useSelector((state) => state.institutes.institutesDataArr);
   const negocio = useSelector((state) => state.business.selectedBusinessId);
   const store = useSelector((state) => state.stores.selectedStoresId);
   const ids = [instituto, negocio, store];
-  
+
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [seriesOptions, setSeriesOptions] = useState([]);
 
   useEffect(() => {
+    async function fetchSeries() {
+      try {
+        const series = await getAllSeries1();
+        setSeriesOptions(series);
+      } catch (error) {
+        console.error("Error fetching series:", error);
+      }
+    }
+
+    fetchSeries();
   }, []);
 
   //FIC: Definition Formik y Yup.
@@ -59,17 +74,11 @@ const AddSeriesModal = ({
       //FIC: mostramos el Loading.
       setLoading(true);
 
-      //FIC: notificamos en consola que si se llamo y entro al evento.
-      console.log(
-        "FIC: entro al onSubmit despues de hacer click en boton Guardar"
-      );
       //FIC: reiniciamos los estados de las alertas de exito y error.
       setMensajeErrorAlert(null);
       setMensajeExitoAlert(null);
       try {
-        
-        //FIC: Extraer los datos de los campos de
-        //la ventana modal que ya tiene Formik.
+        //FIC: Extraer los datos de los campos de la ventana modal que ya tiene Formik.
         const Series = SeriesValues(values);
         //FIC: mandamos a consola los datos extraidos
         console.log("<<Series>>", Series);
@@ -85,6 +94,7 @@ const AddSeriesModal = ({
         //FIC: falta actualizar el estado actual (documentos/data) para que
         //despues de insertar el nuevo instituto se visualice en la tabla.
         //fetchDataSeries();
+        updateSeries(); 
       } catch (e) {
         setMensajeExitoAlert(null);
         setMensajeErrorAlert("No se pudo crear el Instituto");
@@ -94,6 +104,7 @@ const AddSeriesModal = ({
       setLoading(false);
     },
   });
+
   //FIC: props structure for TextField Control.
   const commonTextFieldProps = {
     onChange: formik.handleChange,
@@ -102,6 +113,7 @@ const AddSeriesModal = ({
     margin: "dense",
     disabled: !!mensajeExitoAlert,
   };
+
   return (
     <Dialog
       open={AddSeriesShowModal}
@@ -121,32 +133,35 @@ const AddSeriesModal = ({
           dividers
         >
           {/* FIC: Campos de captura o selección */}
-          <TextField
+          <Autocomplete
             id="Serie"
-            label="Serie*"
-            value={formik.values.Serie}
-            /* onChange={formik.handleChange} */
-            {...commonTextFieldProps}
-            error={
-              formik.touched.Serie &&
-              Boolean(formik.errors.Serie)
+            options={seriesOptions}
+            getOptionLabel={(option) => `${option.Serie}`}
+            onChange={(event, newValue) => {
+              formik.setFieldValue("Serie", newValue ? newValue.Serie : "");
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Serie*"
+                error={formik.touched.Serie && Boolean(formik.errors.Serie)}
+                helperText={formik.touched.Serie && formik.errors.Serie}
+              />
+            )}
+            value={
+              seriesOptions.find(
+                (option) => option.Serie === formik.values.Serie
+              ) || null
             }
-            helperText={
-              formik.touched.Serie && formik.errors.Serie
-            }
+            disabled={!!mensajeExitoAlert}
           />
           <TextField
             id="Placa"
             label="Placa*"
             value={formik.values.Placa}
             {...commonTextFieldProps}
-            error={
-              formik.touched.Placa &&
-              Boolean(formik.errors.Placa)
-            }
-            helperText={
-              formik.touched.Placa && formik.errors.Placa
-            }
+            error={formik.touched.Placa && Boolean(formik.errors.Placa)}
+            helperText={formik.touched.Placa && formik.errors.Placa}
           />
           <TextField
             id="Observacion"
@@ -156,9 +171,7 @@ const AddSeriesModal = ({
             error={
               formik.touched.Observacion && Boolean(formik.errors.Observacion)
             }
-            helperText={
-              formik.touched.Observacion && formik.errors.Observacion
-            }
+            helperText={formik.touched.Observacion && formik.errors.Observacion}
           />
         </DialogContent>
         {/* FIC: Aqui van las acciones del usuario como son las alertas o botones */}
@@ -204,4 +217,5 @@ const AddSeriesModal = ({
     </Dialog>
   );
 };
+
 export default AddSeriesModal;

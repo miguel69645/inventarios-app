@@ -63,12 +63,12 @@ const AddStatusModal = ({
     initialValues: {
       IdTipoEstatusOK: status[0],
       Actual: false,
-      Observaciones: "",
+      Observacion: "",
     },
     validationSchema: Yup.object({
       IdTipoEstatusOK: Yup.string().required("Requerido"),
       Actual: Yup.boolean(),
-      Observaciones: Yup.string().required("Requerido"),
+      Observacion: Yup.string().required("Requerido"),
     }),
     onSubmit: async (values) => {
       //FIC: mostramos el Loading.
@@ -169,17 +169,17 @@ const AddStatusModal = ({
             }
           />
           <TextField
-            id="Observaciones"
-            label="Observaciones*"
-            value={formik.values.Observaciones}
+            id="Observacion"
+            label="Observacion*"
+            value={formik.values.Observacion}
             {...commonTextFieldProps}
             error={
-              formik.touched.Observaciones &&
-              Boolean(formik.errors.Observaciones)
+              formik.touched.Observacion &&
+              Boolean(formik.errors.Observacion)
             }
             helperText={
-              formik.touched.Observaciones &&
-              formik.errors.Observaciones
+              formik.touched.Observacion &&
+              formik.errors.Observacion
             }
           />
         </DialogContent>

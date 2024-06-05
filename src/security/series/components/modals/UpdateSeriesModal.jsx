@@ -9,8 +9,7 @@ import {
   DialogActions,
   Box,
   Alert,
-  FormControlLabel,
-  Checkbox,
+  Autocomplete,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import CloseIcon from "@mui/icons-material/Close";
@@ -21,6 +20,7 @@ import * as Yup from "yup";
 // Services
 import { putSeries } from "../../services/remote/put/UpdateOneSerie";
 import { getOneSeries } from "../../services/remote/get/getOneSerie";
+import { getAllSeries1 } from "../../services/remote/get/getSeries";
 
 const UpdateSeriesModal = ({
   UpdateSeriesShowModal,
@@ -36,12 +36,23 @@ const UpdateSeriesModal = ({
   const [mensajeErrorAlert, setMensajeErrorAlert] = useState("");
   const [mensajeExitoAlert, setMensajeExitoAlert] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [seriesOptions, setSeriesOptions] = useState([]);
 
   useEffect(() => {
     if (selectedSeriesId) {
       getSeriesData();
     }
+    fetchSeriesOptions();
   }, [selectedSeriesId]);
+
+  async function fetchSeriesOptions() {
+    try {
+      const series = await getAllSeries1();
+      setSeriesOptions(series);
+    } catch (error) {
+      console.error("Error fetching series:", error);
+    }
+  }
 
   async function getSeriesData() {
     try {
@@ -109,13 +120,27 @@ const UpdateSeriesModal = ({
           sx={{ display: "flex", flexDirection: "column" }}
           dividers
         >
-          <TextField
+          <Autocomplete
             id="Serie"
-            label="Serie*"
-            {...formik.getFieldProps("Serie")}
-            error={formik.touched.Serie && Boolean(formik.errors.Serie)}
-            helperText={formik.touched.Serie && formik.errors.Serie}
-            disabled={isDetailView}
+            options={seriesOptions}
+            getOptionLabel={(option) => `${option.Serie}`}
+            onChange={(event, newValue) => {
+              formik.setFieldValue("Serie", newValue ? newValue.Serie : "");
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Serie*"
+                error={formik.touched.Serie && Boolean(formik.errors.Serie)}
+                helperText={formik.touched.Serie && formik.errors.Serie}
+              />
+            )}
+            value={
+              seriesOptions.find(
+                (option) => option.Serie === formik.values.Serie
+              ) || null
+            }
+            disabled={isDetailView || !!mensajeExitoAlert}
           />
           <TextField
             id="Placa"

@@ -220,6 +220,7 @@ const SeriessTable = () => {
           AddSeriesShowModal={AddSeriesShowModal}
           setAddSeriesShowModal={setAddSeriesShowModal}
           onClose={() => setAddSeriesShowModal(false)}
+          updateSeries={fetchSeriesData}
         />
       </Dialog>
       <Dialog open={UpdateSeriesShowModal}>

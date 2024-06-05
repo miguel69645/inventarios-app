@@ -6,5 +6,6 @@ export const StatusValues = (values) => {
   let Status = StatusModel();
   (Status.IdTipoEstatusOK = values.IdTipoEstatusOK),
     (Status.Actual = values.Actual);
+    (Status.Observacion = values.Observacion);
   return Status;
 };
